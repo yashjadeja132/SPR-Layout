@@ -10,10 +10,7 @@ import { drawerWidth } from "../../constant/constant";
 
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
-  width: `calc(100% - ${theme.spacing(7)} + 1px)`,
-  [theme.breakpoints.up("sm")]: {
-    width: `calc(100% - ${theme.spacing(8)} + 1px)`,
-  },
+  width: `calc(100% - ${theme.spacing(8)} + 1px)`,
   transition: theme.transitions.create(["width", "margin"], {
     easing: theme.transitions.easing.sharp,
     duration: theme.transitions.duration.leavingScreen,

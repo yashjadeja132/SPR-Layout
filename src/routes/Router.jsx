@@ -24,39 +24,39 @@ const UsersList = lazy(() => import("../pages/Admin/UsersList"));
 // Loader Component
 const Loader = () => <div className="loader">Loading...</div>;
 
-// Function to Create Role-Based Routes
-const createProtectedRoute = (path, role, Component) => ({
-  path,
-  element: (
-    <ProtectedRoute allowedRoles={[role]}>
-      <MainLayout />
-    </ProtectedRoute>
-  ),
-  children: [
-    {
-      index: true,
-      element: <Component />,
-    },
-  ],
-});
-
 const Router = () => {
   const routes = useRoutes([
     {
-      path: "/admin",
+      path: "/a",
       element: (
         <Suspense fallback={<Loader />}>
-          {createProtectedRoute("/admin", ADMIN_ROLE, <UsersList />)}
+          <ProtectedRoute allowedRoles={[ADMIN_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
         </Suspense>
       ),
+      children: [
+        {
+          index: true,
+          element: <UsersList />,
+        },
+      ],
     },
     {
-      path: "/member/:admin",
+      path: "/m/:admin",
       element: (
         <Suspense fallback={<Loader />}>
-          {createProtectedRoute("/member/:admin", MEMBER_ROLE, <UsersList />)}
+          <ProtectedRoute allowedRoles={[MEMBER_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
         </Suspense>
       ),
+      children: [
+        {
+          index: true,
+          element: <UsersList />,
+        },
+      ],
     },
     {
       path: "/user",
