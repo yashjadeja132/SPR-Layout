@@ -41,7 +41,6 @@ const UsersList = () => {
   const [loading, setLoading] = useState(false);
 
   const { data, error, isLoading } = useGetUsersQuery("user");
-  // const [updateUser] = useUpdateUserMutation();
 
   const handleChangePage = (event, newPage) => {
     dispatch(setPage(newPage + 1));

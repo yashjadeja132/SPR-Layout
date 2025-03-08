@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -7,13 +7,10 @@ import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
 import SettingsIcon from "@mui/icons-material/Settings";
-import PersonIcon from "@mui/icons-material/Person";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
-import { Link, useNavigate } from "react-router-dom"; // Import useNavigate
-
 import { drawerWidth } from "../../constant/constant";
+import { useNavigate } from "react-router-dom";
 
 // Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
@@ -34,29 +31,33 @@ const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
 }));
 
 export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [menuOpen, setMenuOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const navigate = useNavigate();
 
-  const navigate = useNavigate(); // Initialize navigate
-
-  const handleMenuClick = (event) => {
+  // Handle settings menu open
+  const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
-    setMenuOpen(true);
   };
 
+  // Handle settings menu close
   const handleMenuClose = () => {
-    setMenuOpen(false);
     setAnchorEl(null);
   };
 
-  const handleLogout = () => {
-    // Clear authentication data (like tokens, session storage, etc.)
-    localStorage.clear(); // Example: Clear localStorage (adjust as needed)
-    sessionStorage.clear(); // Example: Clear sessionStorage (adjust as needed)
-
-    navigate("/sign-in"); // Navigate to the login page after logout
+  // Navigate to the user profile page
+  const handleProfileClick = () => {
+    navigate("/user/profile");
+    handleMenuClose();
   };
-
+  
+  // Handle logout action
+  const handleLogoutClick = () => {
+    console.log("Logging out...");
+    navigate("/sign-in");
+    handleMenuClose();
+  };
+ 
   return (
     <AppBarStyled position="fixed" open={open}>
       <Toolbar>
@@ -81,25 +82,24 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
         >
           <ChevronLeftIcon />
         </IconButton>
-
-        {/* AppBar Title */}
-        <Typography variant="h6" noWrap component="div">
-          Smart Ticket Support System
+        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
+          Mini variant drawer
         </Typography>
 
-        {/* Settings Icon - opens a menu */}
+        {/* Settings Icon with Menu */}
         <IconButton
           color="inherit"
-          onClick={handleMenuClick}
-          sx={{ marginLeft: "auto" }}
+          aria-label="settings"
+          aria-controls="settings-menu"
+          aria-haspopup="true"
+          onClick={handleMenuOpen}
         >
           <SettingsIcon />
         </IconButton>
-
-        {/* Menu for Profile and Logout */}
         <Menu
+          id="settings-menu"
           anchorEl={anchorEl}
-          open={menuOpen}
+          open={openMenu}
           onClose={handleMenuClose}
           anchorOrigin={{
             vertical: "top",
@@ -110,23 +110,8 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
             horizontal: "right",
           }}
         >
-          {/* Profile Option */}
-          <MenuItem
-            component={Link}
-            to="/super/profile"
-            onClick={handleMenuClose}
-          >
-            <PersonIcon sx={{ marginRight: 1 }} />
-            Profile
-          </MenuItem>
-
-          {/* Logout Option */}
-          <MenuItem onClick={handleLogout}>
-            {" "}
-            {/* Updated to use handleLogout */}
-            <ExitToAppIcon sx={{ marginRight: 1 }} />
-            Logout
-          </MenuItem>
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
         </Menu>
       </Toolbar>
     </AppBarStyled>

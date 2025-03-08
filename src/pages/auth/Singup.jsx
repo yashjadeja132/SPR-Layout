@@ -7,18 +7,24 @@ import {
   TextField,
   Button,
   Divider,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCredentials } from "../../store/stateSlices/authStateSlice";
 import { useRegisterMutation } from "../../store/apiSlices/authApiSlice";
 import SignUp2 from "../../assets/SignUp2.avif";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 
 const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [name, setUsername] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [register] = useRegisterMutation();
@@ -29,12 +35,38 @@ const Signup = () => {
     try {
       const userData = await register({ name, email, password }).unwrap();
       dispatch(setCredentials(userData));
-      navigate("/dashboard");
+      console.log("Registration Successful"); // Debugging
+      toast.success("Registration Successful!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
+      navigate("/user/profile");
     } catch (err) {
+      console.log("Registration Failed"); // Debugging
+      toast.error("Registration Failed!", {
+        position: "top-right",
+        autoClose: 3000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "colored",
+      });
       console.error("Failed to register:", err);
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -117,12 +149,25 @@ const Signup = () => {
               <TextField
                 fullWidth
                 label="Password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 margin="normal"
                 variant="outlined"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
 
               <Button
@@ -160,6 +205,8 @@ const Signup = () => {
           </CardContent>
         </Box>
       </Card>
+
+      <ToastContainer style={{ zIndex: 9999 }} />
     </Box>
   );
 };

@@ -8,7 +8,9 @@ const registerSchema = Joi.object({
   state: Joi.string().allow(null, "").max(100),
   country: Joi.string().allow(null, "").max(100),
   userDetails: Joi.object().allow(null),
-  role: Joi.string().valid("admin", "user", "company").default("user"),
+  role: Joi.string()
+    .valid("user", "admin", "super-admin", "staff")
+    .default("user"),
 });
 
 const loginSchema = Joi.object({
@@ -16,7 +18,12 @@ const loginSchema = Joi.object({
   password: Joi.string().min(6).required(),
 });
 
+const verifyTokenSchema = Joi.object({
+  token: Joi.string().required("Token is required!"),
+});
+
 module.exports = {
   registerSchema,
   loginSchema,
+  verifyTokenSchema,
 };

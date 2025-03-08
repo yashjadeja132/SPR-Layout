@@ -25,21 +25,6 @@ const userProfileSchema = new mongoose.Schema(
       default: null,
     },
 
-    address: {
-      type: String,
-      default: null,
-    },
-
-    state: {
-      type: String,
-      default: null,
-    },
-
-    country: {
-      type: String,
-      default: null,
-    },
-
     isActive: {
       type: Boolean,
       default: true,

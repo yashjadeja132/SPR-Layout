@@ -9,7 +9,10 @@ import {
   Divider,
   CircularProgress,
   Alert,
+  IconButton,
+  InputAdornment,
 } from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../store/apiSlices/authApiSlice";
 import { setCredentials as setLoginCredentials } from "../../store/stateSlices/authStateSlice";
@@ -21,6 +24,7 @@ const Login = () => {
   const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (e) => {
     setCredentials({ ...credentials, [e.target.name]: e.target.value });
@@ -34,19 +38,22 @@ const Login = () => {
 
       dispatch(setLoginCredentials(response));
 
-      // Navigate based on user role
       if (userRole === "super-admin") {
-        navigate("/super"); // Super Admin Dashboard
+        navigate("/super");
       } else if (userRole === "admin") {
-        navigate("/admin"); // Admin Dashboard
+        navigate("/admin");
       } else if (userRole === "user") {
-        navigate("/user"); // User Dashboard
+        navigate("/user");
       } else {
-        navigate("/sign-in"); // Default fallback
+        navigate("/sign-in");
       }
     } catch (err) {
-      console.error("Login failed:", err);
+      console.error("Invalid Username or Password:", err);
     }
+  };
+
+  const handleClickShowPassword = () => {
+    setShowPassword(!showPassword);
   };
 
   return (
@@ -71,7 +78,6 @@ const Login = () => {
           background: "#fff",
         }}
       >
-        {/* Left Side - Image */}
         <Box
           sx={{
             flex: 1,
@@ -80,7 +86,6 @@ const Login = () => {
           }}
         />
 
-        {/* Divider */}
         <Divider
           orientation="vertical"
           flexItem
@@ -91,7 +96,6 @@ const Login = () => {
           }}
         />
 
-        {/* Right Side - Login Form */}
         <Box sx={{ flex: 1, padding: 4 }}>
           <CardContent>
             <Typography
@@ -129,12 +133,25 @@ const Login = () => {
                 fullWidth
                 label="Password"
                 name="password"
-                type="password"
+                type={showPassword ? "text" : "password"}
                 value={credentials.password}
                 onChange={handleChange}
                 margin="normal"
                 variant="outlined"
                 required
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton
+                        aria-label="toggle password visibility"
+                        onClick={handleClickShowPassword}
+                        edge="end"
+                      >
+                        {showPassword ? <VisibilityOff /> : <Visibility />}
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
               />
 
               <Button
