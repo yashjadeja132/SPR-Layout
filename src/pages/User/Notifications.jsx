@@ -50,14 +50,7 @@ function Notifications() {
       <h2>Notifications</h2>
 
       {/* Toggle Switch UI with inline CSS */}
-      <label
-        style={{
-          position: "relative",
-          display: "inline-block",
-          width: "60px",
-          height: "34px",
-        }}
-      >
+      <label style={{ position: "relative", display: "inline-block", width: "60px", height: "34px" }}>
         <input
           type="checkbox"
           checked={isNotificationActive}
