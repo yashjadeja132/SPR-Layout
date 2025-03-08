@@ -7,6 +7,7 @@ const {
   updateUserByAdmin,
   deleteUserByAdmin,
   addUserByAdmin,
+  getDashboardData,
 } = require("../../controllers/v1/userController");
 
 const { protect } = require("../../middleware/authMiddleware");
@@ -14,6 +15,7 @@ const { restrictTo } = require("../../middleware/roleMiddleware");
 
 const router = express.Router();
 
+router.get("/", protect, getDashboardData);
 router.get("/all", protect, restrictTo("super-admin"), getAllUsers);
 router.get("/profile", protect, getUserProfile);
 
