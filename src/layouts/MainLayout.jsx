@@ -5,6 +5,7 @@ import CssBaseline from "@mui/material/CssBaseline";
 import Sidebar from "../components/common/sidebar/Sidebar";
 import AppBarComponent from "../components/common/Header";
 import { Outlet } from "react-router-dom";
+import { ToastContainer } from "react-toastify";
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
@@ -30,6 +31,7 @@ export default function MainLayout() {
         <DrawerHeader />
         <Outlet />
       </Box>
+      <ToastContainer style={{ zIndex: 9999 }} />
     </Box>
   );
 }

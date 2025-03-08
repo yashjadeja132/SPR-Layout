@@ -33,6 +33,8 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const UsersList = () => {
   const dispatch = useDispatch();
@@ -76,9 +78,33 @@ const UsersList = () => {
     setOpenModal(true);
   };
 
-  // Add or Update User
+  // Add or Update User with Validation
+  // Add or Update User with Validation
   const handleSaveUser = async () => {
     setLoading(true);
+
+    // Validation
+    if (!name || !email || !role) {
+      toast.error("Please fill all the required fields!");
+      setLoading(false);
+      return;
+    }
+
+    // Email validation regex
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format!");
+      setLoading(false);
+      return;
+    }
+
+    // Password length validation (only for new users)
+    if (!isEditing && (!password || password.length < 6)) {
+      toast.error("Password must be at least 6 characters long!");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isEditing) {
         await updateUser({ userId: userId, name, email, role }).unwrap();
@@ -87,8 +113,30 @@ const UsersList = () => {
       }
       setOpenModal(false);
       refetch();
+      toast.success(
+        isEditing ? "User updated successfully!" : "User added successfully!"
+      );
     } catch (error) {
       console.error("Error saving user:", error);
+      toast.error("An error occurred while saving the user!");
+    } finally {
+      setLoading(false);
+    }
+
+    try {
+      if (isEditing) {
+        await updateUser({ userId: userId, name, email, role }).unwrap();
+      } else {
+        await createUser({ name, email, password, role }).unwrap();
+      }
+      setOpenModal(false);
+      refetch();
+      toast.success(
+        isEditing ? "User updated successfully!" : "User added successfully!"
+      );
+    } catch (error) {
+      console.error("Error saving user:", error);
+      toast.error("An error occurred while saving the user!");
     } finally {
       setLoading(false);
     }
@@ -106,8 +154,10 @@ const UsersList = () => {
       await deleteUser(userToDelete.userId).unwrap();
       setDeleteDialog(false);
       refetch();
+      toast.success("User deleted successfully!");
     } catch (error) {
       console.error("Error deleting user:", error);
+      toast.error("An error occurred while deleting the user!");
     }
   };
 

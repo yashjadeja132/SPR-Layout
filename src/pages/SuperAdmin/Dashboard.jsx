@@ -119,7 +119,7 @@ const Dashboard = () => {
               boxShadow: 3,
             }}
           >
-            <Typography variant="h5" align="center" color="white" gutterBottom>
+            <Typography variant="h5" align="center" gutterBottom>
               User Growth Over Time
             </Typography>
             <Line data={chartData} />

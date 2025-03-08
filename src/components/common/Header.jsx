@@ -136,10 +136,12 @@ export default function Header({
             Profile
           </MenuItem>
 
-          <MenuItem onClick={handlenotificationClick}>
-            <CircleNotificationsIcon style={{ marginRight: "8px" }} />
-            Notifications
-          </MenuItem>
+          {userrole === "user" && (
+            <MenuItem onClick={handlenotificationClick}>
+              <CircleNotificationsIcon style={{ marginRight: "8px" }} />
+              Notifications
+            </MenuItem>
+          )}
           <MenuItem onClick={handleLogoutClick}>
             <LogoutIcon style={{ marginRight: "8px" }} />
             Logout

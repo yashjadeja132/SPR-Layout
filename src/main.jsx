@@ -8,3 +8,6 @@ createRoot(document.getElementById("root")).render(
     <App />
   </StrictMode>
 );
+
+console.error = () => {};
+console.warn = () => {};
