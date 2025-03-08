@@ -10,7 +10,8 @@ const app = express();
 const appUrl = process.env.APP_URL;
 
 app.use(logger("dev"));
-app.use(cors({ origin: appUrl }));
+app.use(express.json());
+app.use(cors());
 
 app.use("/api", routes);
 
