@@ -17,6 +17,7 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  FormHelperText,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -42,9 +43,9 @@ function TicketGenerate() {
 
   const [formData, setFormData] = useState(initialFormState);
   const [openModal, setOpenModal] = useState(false);
-  // New state for ticket details modal.
   const [selectedTicket, setSelectedTicket] = useState(null);
   const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
   const [createTicket] = useCreateTicketMutation();
   const [deleteTicket] = useDeleteTicketMutation();
@@ -63,22 +64,54 @@ function TicketGenerate() {
       ...prev,
       [name]: value,
     }));
+    setFormErrors((prev) => ({
+      ...prev,
+      [name]: "", // Clear the error for the field as the user is typing
+    }));
   };
 
   // Open the "Generate Ticket" modal.
   const handleOpenModal = () => {
     setFormData(initialFormState);
+    setFormErrors({});
     setOpenModal(true);
   };
 
   // Close the "Generate Ticket" modal.
   const handleCloseModal = () => {
     setFormData(initialFormState);
+    setFormErrors({});
     setOpenModal(false);
+  };
+
+  // Validate the form.
+  const validateForm = () => {
+    const errors = {};
+
+    if (!formData.priority) {
+      errors.priority = "Priority is required!";
+    }
+    if (!formData.status) {
+      errors.status = "Status is required!";
+    }
+    if (!formData.description) {
+      errors.description = "Description is required!";
+    }
+    if (!formData.category) {
+      errors.category = "Category is required!";
+    }
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0; // Return true if there are no errors
   };
 
   // Create a new ticket and refresh the ticket list.
   const handleGenerateTicket = async () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return; // Do not submit the form if there are errors
+    }
+
     try {
       const response = await createTicket(formData).unwrap();
       console.log("Ticket generated:", response);
@@ -140,7 +173,7 @@ function TicketGenerate() {
             Generate Ticket
           </Typography>
 
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 2 }} error={!!formErrors.priority}>
             <InputLabel>Priority</InputLabel>
             <Select
               name="priority"
@@ -157,9 +190,12 @@ function TicketGenerate() {
                 </MenuItem>
               ))}
             </Select>
+            {formErrors.priority && (
+              <FormHelperText>{formErrors.priority}</FormHelperText>
+            )}
           </FormControl>
 
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 2 }} error={!!formErrors.status}>
             <InputLabel>Status</InputLabel>
             <Select
               name="status"
@@ -176,6 +212,9 @@ function TicketGenerate() {
                 </MenuItem>
               ))}
             </Select>
+            {formErrors.status && (
+              <FormHelperText>{formErrors.status}</FormHelperText>
+            )}
           </FormControl>
 
           <TextField
@@ -187,9 +226,11 @@ function TicketGenerate() {
             onChange={handleChange}
             fullWidth
             sx={{ mb: 2 }}
+            error={!!formErrors.description}
+            helperText={formErrors.description}
           />
 
-          <FormControl fullWidth sx={{ mb: 2 }}>
+          <FormControl fullWidth sx={{ mb: 2 }} error={!!formErrors.category}>
             <InputLabel>Category</InputLabel>
             <Select
               name="category"
@@ -211,6 +252,9 @@ function TicketGenerate() {
                 </MenuItem>
               ))}
             </Select>
+            {formErrors.category && (
+              <FormHelperText>{formErrors.category}</FormHelperText>
+            )}
           </FormControl>
 
           <TextField
