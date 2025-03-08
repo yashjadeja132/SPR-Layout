@@ -12,6 +12,9 @@ import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import Person2Icon from "@mui/icons-material/Person2";
+import LogoutIcon from "@mui/icons-material/Logout";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
 
 // Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
@@ -42,7 +45,7 @@ export default function Header({
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const userrole = user.role;
-  console.log(user, "userrole");
+
   // Handle settings menu open
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -75,7 +78,7 @@ export default function Header({
   };
 
   const handlenotificationClick = () => {
-    navigate("/user/notification"); 
+    navigate("/user/notification");
   };
 
   return (
@@ -91,7 +94,6 @@ export default function Header({
         >
           <MenuIcon />
         </IconButton>
-
         {/* Drawer Close Icon */}
         <IconButton
           color="inherit"
@@ -106,7 +108,6 @@ export default function Header({
           Smart Ticket Support System
         </Typography>
 
-        
         <IconButton
           color="inherit"
           aria-label="settings"
@@ -130,9 +131,19 @@ export default function Header({
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
-          <MenuItem onClick={handlenotificationClick}>Notifications</MenuItem>
+          <MenuItem onClick={handleProfileClick}>
+            <Person2Icon style={{ marginRight: "8px" }} />
+            Profile
+          </MenuItem>
+
+          <MenuItem onClick={handlenotificationClick}>
+            <CircleNotificationsIcon style={{ marginRight: "8px" }} />
+            Notifications
+          </MenuItem>
+          <MenuItem onClick={handleLogoutClick}>
+            <LogoutIcon style={{ marginRight: "8px" }} />
+            Logout
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBarStyled>

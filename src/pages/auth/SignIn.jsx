@@ -8,7 +8,6 @@ import {
   Button,
   Divider,
   CircularProgress,
-  Alert,
   IconButton,
   InputAdornment,
 } from "@mui/material";
@@ -18,6 +17,8 @@ import { useLoginMutation } from "../../store/apiSlices/authApiSlice";
 import { setCredentials as setLoginCredentials } from "../../store/stateSlices/authStateSlice";
 import LoginImage from "../../assets/svg/login.jpg";
 import { useDispatch } from "react-redux";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -32,6 +33,19 @@ const Login = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    const { email, password } = credentials;
+
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(email)) {
+      toast.error("Please enter a valid email address.");
+      return;
+    }
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
     try {
       const response = await login(credentials).unwrap();
       const userRole = response.user.role;
@@ -48,7 +62,7 @@ const Login = () => {
         navigate("/sign-in");
       }
     } catch (err) {
-      console.error("Invalid Username or Password:", err);
+      toast.error("Invalid username or password.");
     }
   };
 
@@ -111,12 +125,6 @@ const Login = () => {
               Login
             </Typography>
 
-            {error && (
-              <Alert severity="error">
-                {error.data?.message || "Login failed"}
-              </Alert>
-            )}
-
             <form onSubmit={handleSubmit}>
               <TextField
                 fullWidth
@@ -163,8 +171,6 @@ const Login = () => {
                   borderRadius: "5px",
                   padding: "12px",
                   fontSize: "16px",
-                  bgcolor: "primary.main",
-                  "&:hover": { bgcolor: "primary.dark" },
                 }}
                 disabled={isLoading}
               >
@@ -194,6 +200,7 @@ const Login = () => {
           </CardContent>
         </Box>
       </Card>
+      <ToastContainer position="top-right" autoClose={3000} />
     </Box>
   );
 };

@@ -18,11 +18,6 @@ export const userApiSlice = createApi({
   endpoints: (builder) => ({
     getProfile: builder.query({
       query: () => `/profile`,
-      keepUnusedDataFor: 300,
-      providesTags: (result) =>
-        result?.userProfile
-          ? [{ type: "Users", id: result.userProfile.userId }]
-          : [],
     }),
     updateProfile: builder.mutation({
       query: (data) => ({

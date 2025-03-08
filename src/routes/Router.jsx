@@ -63,10 +63,6 @@ const Router = () => {
           element: <LogTable />,
         },
         {
-          path: "ticket-table",
-          element: <TicketTable />,
-        },
-        {
           path: "admin-table",
           element: <AdminTable />,
         },
@@ -77,6 +73,10 @@ const Router = () => {
         {
           path: "staff-member",
           element: <Staff />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
         },
       ],
     },
@@ -108,14 +108,18 @@ const Router = () => {
       children: [
         {
           index: true,
-          element: <UsersList />,
+          element: <Dashboard />,
+        },
+        {
+          path: "dashboard",
+          element: <Dashboard />,
         },
         {
           path: "profile",
           element: <Profile />,
         },
         {
-          path: "ticket-generate",
+          path: "tickets",
           element: <Ticketgenerate />,
         },
         {

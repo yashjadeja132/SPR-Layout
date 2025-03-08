@@ -17,7 +17,8 @@ import {
   InputAdornment,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import { color } from "framer-motion";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function Profile() {
   const navigate = useNavigate();
@@ -48,20 +49,41 @@ function Profile() {
   };
 
   const handleSave = async () => {
-    try {
-      const { name, email, password } = profile;
-      const updateData = { name, email };
+    const { name, email, password } = profile;
 
+    // Check if username is missing
+    if (!name) {
+      toast.error("Username is required.");
+      return;
+    }
+
+    // Check if password is less than 6 characters
+    if (password && password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      return;
+    }
+
+    // Proceed with profile update
+    try {
+      const updateData = { name, email };
       if (password) {
         updateData.password = password;
       }
 
       await updateProfile(updateData).unwrap();
-      alert("Profile updated successfully!");
+      toast.success("Profile updated successfully!");
       setProfile((prev) => ({ ...prev, password: "" }));
     } catch (err) {
+          if (err?.status === 400) {
+              toast.error("Please enter the Correct mail.");
+            }
+      // Handle email conflict error (e.g., email already exists)
+      if (err?.data?.message?.includes("email exists")) {
+        toast.error("Email already exists. Please use a different email.");
+      } else {
+        // toast.error("Failed to update profile.");
+      }
       console.error("Failed to update profile:", err);
-      alert("Failed to update profile.");
     }
   };
 
@@ -72,88 +94,6 @@ function Profile() {
   if (error) {
     return <div style={{ color: "red" }}>Error loading profile</div>;
   }
-
-  const styles = {
-    container: {
-      display: "flex",
-      justifyContent: "center",
-      alignItems: "center",
-      //   minHeight: "100vh", // Uncomment if needed for full screen height
-      backgroundColor: "#e5e7eb", // Uncomment for a light gray background
-      padding: "16px",
-      boxShadow: "0 4px 8px rgba(34, 197, 94, 0.6)", // Green shadow
-    },
-
-    card: {
-      width: "100%",
-      maxWidth: "400px",
-      padding: "32px",
-      backgroundColor: "#fff",
-      boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
-      borderRadius: "16px",
-      position: "relative",
-    },
-    input: {
-      width: "100%",
-      height: "48px",
-      padding: "8px 16px",
-      border: "1px solid #d1d5db",
-      borderRadius: "8px",
-      marginBottom: "24px",
-      outline: "none",
-      fontSize: "16px",
-      boxSizing: "border-box",
-      backgroundColor: "#f9fafb",
-    },
-    label: {
-      fontSize: "16px",
-      fontWeight: "500",
-      marginBottom: "8px",
-      display: "block",
-      color: "#374151",
-    },
-    button: {
-      width: "100%",
-      height: "48px",
-      backgroundColor: "#3b82f6",
-      color: "#fff",
-      fontWeight: "600",
-      borderRadius: "8px",
-      border: "none",
-      cursor: "pointer",
-      transition: "background-color 0.3s",
-      marginTop: "16px",
-    },
-    buttonHover: {
-      backgroundColor: "#2563eb",
-    },
-    togglePassword: {
-      position: "absolute",
-      right: "16px",
-      top: "12px",
-      cursor: "pointer",
-      color: "#6b7280",
-    },
-    inputContainer: {
-      position: "relative",
-    },
-    header: {
-      display: "flex",
-      alignItems: "center",
-      marginBottom: "32px",
-    },
-    backButton: {
-      cursor: "pointer",
-      color: "#1f2937",
-      marginRight: "16px",
-      fontSize: "40px",
-    },
-    title: {
-      fontSize: "28px",
-      fontWeight: "bold",
-      color: "#1f2937",
-    },
-  };
 
   return (
     <Container maxWidth="xs" sx={{ paddingTop: "4rem" }}>
@@ -278,6 +218,17 @@ function Profile() {
           </Grid>
         </Box>
       </Paper>
+
+      {/* Toast Container */}
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
     </Container>
   );
 }

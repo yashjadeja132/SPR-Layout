@@ -30,4 +30,27 @@ const ticketSchema = Joi.object({
   resolutionNotes: Joi.string().trim().max(1000).allow(null, "").optional(),
 });
 
-module.exports = { ticketSchema };
+const updateTicketSchema = Joi.object({
+  category: Joi.string()
+    .valid(
+      "Technical Support",
+      "Billing & Payment",
+      "General Inquiry",
+      "Feature Request"
+    )
+    .optional(),
+
+  description: Joi.string().trim().max(1000).optional(),
+
+  priority: Joi.string().valid("Low", "Medium", "High", "Critical").optional(),
+
+  status: Joi.string()
+    .valid("Open", "In Progress", "Resolved", "Closed")
+    .optional(),
+
+  assignee: Joi.string().trim().optional(),
+
+  resolutionNotes: Joi.string().trim().max(2000).optional(),
+});
+
+module.exports = { ticketSchema, updateTicketSchema };
