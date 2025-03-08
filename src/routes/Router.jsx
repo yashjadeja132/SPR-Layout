@@ -8,7 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 
 // Constants
-import { ADMIN_ROLE, MEMBER_ROLE } from "../constant/constant";
+import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE } from "../constant/constant";
 
 // Common Pages
 import LandingPage from "../pages/common/LandingPage";
@@ -28,7 +28,27 @@ const Loader = () => <div className="loader">Loading...</div>;
 const Router = () => {
   const routes = useRoutes([
     {
-      path: "/s",
+      path: "/super",
+      element: (
+        <Suspense fallback={<Loader />}>
+          <ProtectedRoute allowedRoles={[SUPER_ADMIN_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
+        </Suspense>
+      ),
+      children: [
+        {
+          index: true,
+          element: <UsersList />,
+        },
+        {
+          path: "/",
+          element: <UsersList />,
+        },
+      ],
+    },
+    {
+      path: "/admin",
       element: (
         <Suspense fallback={<Loader />}>
           <ProtectedRoute allowedRoles={[ADMIN_ROLE]}>
@@ -44,26 +64,10 @@ const Router = () => {
       ],
     },
     {
-      path: "/a",
+      path: "/user",
       element: (
         <Suspense fallback={<Loader />}>
-          <ProtectedRoute allowedRoles={[MEMBER_ROLE]}>
-            <MainLayout />
-          </ProtectedRoute>
-        </Suspense>
-      ),
-      children: [
-        {
-          index: true,
-          element: <UsersList />,
-        },
-      ],
-    },
-    {
-      path: "/u",
-      element: (
-        <Suspense fallback={<Loader />}>
-          <ProtectedRoute allowedRoles={[MEMBER_ROLE]}>
+          <ProtectedRoute allowedRoles={[USER_ROLE]}>
             <MainLayout />
           </ProtectedRoute>
         </Suspense>
