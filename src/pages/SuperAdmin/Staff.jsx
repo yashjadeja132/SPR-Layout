@@ -34,7 +34,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 
-const UsersList = () => {
+const Staff = () => {
   const dispatch = useDispatch();
   const { page, limit } = useSelector((state) => state.users);
   const [openModal, setOpenModal] = useState(false);
@@ -298,4 +298,4 @@ const UsersList = () => {
   );
 };
 
-export default UsersList;
+export default Staff;
