@@ -4,6 +4,7 @@ const {
   getTickets,
   updateTicket,
   deleteTicket,
+  assignUserToTicket,
 } = require("../../controllers/v1/ticketController");
 
 const { protect } = require("../../middleware/authMiddleware");
@@ -14,6 +15,12 @@ const router = express.Router();
 router.get("/", protect, getTickets);
 
 router.post("/", protect, createTicket);
+router.post(
+  "/assign",
+  protect,
+  restrictTo("super-admin", "admin"),
+  assignUserToTicket
+);
 
 router.put(
   "/:ticketId",

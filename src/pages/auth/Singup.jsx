@@ -32,33 +32,34 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      toast.error("Invalid email format.");
+      setLoading(false);
+      return;
+    }
+
     try {
       const userData = await register({ name, email, password }).unwrap();
       dispatch(setCredentials(userData));
-      console.log("Registration Successful"); // Debugging
-      toast.success("Registration Successful!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      toast.success("Registration Successful!");
       navigate("/user/profile");
     } catch (err) {
-      console.log("Registration Failed"); // Debugging
-      toast.error("Registration Failed!", {
-        position: "top-right",
-        autoClose: 3000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-        theme: "colored",
-      });
+      if (err?.status === 409) {
+        toast.error("Email already exists. Please use a different email.");
+      }
+      if (err?.data?.message?.includes("exists")) {
+        toast.error("Email already exists. Please use a different email.");
+      } else {
+        // toast.error("Registration Failed!");
+      }
       console.error("Failed to register:", err);
     } finally {
       setLoading(false);
@@ -76,8 +77,10 @@ const Signup = () => {
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        background: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
         padding: 2,
+      }}
+      style={{
+        background: "linear-gradient(135deg, #11998e 0%, #38ef7d 100%)",
       }}
     >
       <Card
@@ -87,8 +90,6 @@ const Signup = () => {
           maxWidth: 800,
           borderRadius: 4,
           overflow: "hidden",
-          boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
-          background: "#fff",
         }}
       >
         <Box
@@ -96,33 +97,19 @@ const Signup = () => {
             flex: 1,
             display: { xs: "none", md: "block" },
             background: `url(${SignUp2}) center/cover`,
+            height: "300px",
+            marginTop: "13%",
           }}
-          style={{ height: "300px", marginTop: "13%" }}
         />
-
         <Divider
           orientation="vertical"
           flexItem
-          sx={{
-            display: { xs: "none", md: "block" },
-            width: "1px",
-            background: "#ddd",
-          }}
+          sx={{ display: { xs: "none", md: "block" } }}
         />
 
         <Box sx={{ flex: 1, padding: 4 }}>
           <CardContent>
-            <Typography
-              variant="h4"
-              align="center"
-              sx={{
-                fontWeight: "bold",
-                textTransform: "uppercase",
-                letterSpacing: 1,
-                color: "#333",
-                mb: 3,
-              }}
-            >
+            <Typography variant="h4" align="center" sx={{ mb: 3 }}>
               Sign Up
             </Typography>
 
@@ -131,7 +118,6 @@ const Signup = () => {
                 fullWidth
                 label="Username"
                 margin="normal"
-                variant="outlined"
                 required
                 value={name}
                 onChange={(e) => setUsername(e.target.value)}
@@ -141,7 +127,6 @@ const Signup = () => {
                 label="Email"
                 type="email"
                 margin="normal"
-                variant="outlined"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -151,18 +136,13 @@ const Signup = () => {
                 label="Password"
                 type={showPassword ? "text" : "password"}
                 margin="normal"
-                variant="outlined"
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 InputProps={{
                   endAdornment: (
                     <InputAdornment position="end">
-                      <IconButton
-                        aria-label="toggle password visibility"
-                        onClick={handleClickShowPassword}
-                        edge="end"
-                      >
+                      <IconButton onClick={handleClickShowPassword}>
                         {showPassword ? <VisibilityOff /> : <Visibility />}
                       </IconButton>
                     </InputAdornment>
@@ -174,30 +154,17 @@ const Signup = () => {
                 type="submit"
                 fullWidth
                 variant="contained"
-                sx={{
-                  mt: 3,
-                  padding: "12px",
-                  fontSize: "16px",
-                  background: "#1fb988",
-                  "&:hover": { background: "#1fb988" },
-                }}
+                sx={{ mt: 3 }}
                 disabled={loading}
               >
                 {loading ? "Signing Up..." : "Sign Up"}
               </Button>
 
               <Typography
-                variant="body2"
                 component={Link}
                 to="/sign-in"
                 align="center"
-                sx={{
-                  display: "block",
-                  mt: 2,
-                  color: "#555",
-                  textDecoration: "none",
-                  "&:hover": { textDecoration: "underline" },
-                }}
+                sx={{ mt: 2 }}
               >
                 Already have an account? Login
               </Typography>
@@ -205,6 +172,16 @@ const Signup = () => {
           </CardContent>
         </Box>
       </Card>
+
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
     </Box>
   );
 };

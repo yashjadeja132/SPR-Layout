@@ -51,9 +51,98 @@ exports.getTickets = async (req, res) => {
     let tickets;
 
     if (user.role === "super-admin") {
-      tickets = await Tickets.find({ isDeleted: false });
+      tickets = await Tickets.aggregate([
+        { $match: { isDeleted: false } },
+        {
+          $lookup: {
+            from: "user-profiles",
+            localField: "assignee",
+            foreignField: "userId",
+            as: "assigneeDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assigneeDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            assigneeName: "$assigneeDetails.name",
+          },
+        },
+        {
+          $project: {
+            assigneeDetails: 0,
+          },
+        },
+      ]);
+    } else if (user.role === "admin") {
+      const userIds = (await User.find({ role: "user", isDeleted: false })).map(
+        (item) => item.userId
+      );
+
+      tickets = await Tickets.aggregate([
+        { $match: { userId: { $in: userIds }, isDeleted: false } },
+        {
+          $lookup: {
+            from: "user-profiles",
+            localField: "assignee",
+            foreignField: "userId",
+            as: "assigneeDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assigneeDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            assigneeName: "$assigneeDetails.name",
+          },
+        },
+        {
+          $project: {
+            assigneeDetails: 0,
+          },
+        },
+      ]);
     } else {
-      tickets = await Tickets.find({ userId: user.userId, isDeleted: false });
+      tickets = await Tickets.aggregate([
+        {
+          $match: {
+            $or: [{ userId: user.userId }, { assignee: user.userId }],
+            isDeleted: false,
+          },
+        },
+        {
+          $lookup: {
+            from: "user-profiles",
+            localField: "assignee",
+            foreignField: "userId",
+            as: "assigneeDetails",
+          },
+        },
+        {
+          $unwind: {
+            path: "$assigneeDetails",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $addFields: {
+            assigneeName: "$assigneeDetails.name",
+          },
+        },
+        {
+          $project: {
+            assigneeDetails: 0,
+          },
+        },
+      ]);
     }
 
     res.status(200).json({
@@ -120,16 +209,16 @@ exports.updateTicket = async (req, res) => {
       <p>Dear User,</p>
       <p>Your ticket with ID <b>${ticketId}</b> has been updated.</p>
         <p><b>Status:</b> ${ticket.status}</p>
-        <p><b>Updated By:</b> ${req.user.name}</p>
+        <p><b>Updated By:</b> ${req.user.email}</p>
         <p>For more details, please log in to your account.</p>
         <p>Best Regards,</p>
         <p>Your Support Team</p>
         `,
       };
-    }
 
-    // Send email notification
-    await sendMail(mailOptions);
+      // Send email notification
+      await sendMail(mailOptions);
+    }
 
     res.status(200).json({
       success: true,
@@ -188,5 +277,57 @@ exports.deleteTicket = async (req, res) => {
   } catch (error) {
     console.error("Error deleting ticket:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+exports.assignUserToTicket = async (req, res) => {
+  try {
+    const { ticketId, userId } = req.body;
+
+    if (!ticketId || !userId) {
+      return res.status(400).json({
+        success: false,
+        message: "Ticket and User are required.",
+      });
+    }
+
+    // Check if the ticket exists
+    const ticket = await Tickets.findOne({ ticketId, isDeleted: false });
+    if (!ticket) {
+      return res.status(404).json({
+        success: false,
+        message: "Ticket not found.",
+      });
+    }
+
+    // Check if the user exists
+    const user = await User.findOne({
+      userId,
+      isDeleted: false,
+      role: "staff",
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found.",
+      });
+    }
+
+    // Update the ticket with the new assignee
+    ticket.assignee = userId;
+    await ticket.save();
+
+    res.status(200).json({
+      success: true,
+      message: "User assigned to ticket successfully.",
+      ticket,
+    });
+  } catch (error) {
+    console.error("Error assigning user to ticket:", error);
+    res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
   }
 };

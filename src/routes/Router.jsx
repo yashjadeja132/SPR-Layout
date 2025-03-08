@@ -8,7 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 
 // Constants
-import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE } from "../constant/constant";
+import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE, STAFF_ROLE } from "../constant/constant";
 
 // Common Pages
 import LandingPage from "../pages/common/LandingPage";
@@ -26,8 +26,10 @@ const TicketTable = lazy(() => import("../pages/SuperAdmin/TicketTable"));
 const LogTable = lazy(() => import("../pages/SuperAdmin/LogTable"));
 const AdminTable = lazy(() => import("../pages/SuperAdmin/AdminTable"));
 const Ticketgenerate = lazy(() => import("../pages/User/Ticketgenerate"));
+const Notifications = lazy(() => import("../pages/User/Notifications"));
+const Staff = lazy(() => import("../pages/SuperAdmin/Staff"));
+
 import Profile from "../pages/Admin/Profile";
-import Staff from "../pages/SuperAdmin/Staff";
 
 // Loader Component
 const Loader = () => <div className="loader">Loading...</div>;
@@ -46,10 +48,6 @@ const Router = () => {
       children: [
         {
           index: true,
-          element: <Dashboard />,
-        },
-        {
-          path: "dashboard",
           element: <Dashboard />,
         },
         {
@@ -90,7 +88,27 @@ const Router = () => {
       children: [
         {
           index: true,
+          element: <Dashboard />,
+        },
+        {
+          path: "user-table",
           element: <UsersList />,
+        },
+        {
+          path: "log-table",
+          element: <LogTable />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "staff-member",
+          element: <Staff />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
         },
       ],
     },
@@ -109,7 +127,31 @@ const Router = () => {
           element: <Dashboard />,
         },
         {
-          path: "dashboard",
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
+        },
+        {
+          path: "notification",
+          element: <Ticketgenerate />,
+        },
+      ],
+    },
+    {
+      path: "/staff",
+      element: (
+        <Suspense fallback={<Loader />}>
+          <ProtectedRoute allowedRoles={[STAFF_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
+        </Suspense>
+      ),
+      children: [
+        {
+          index: true,
           element: <Dashboard />,
         },
         {
@@ -122,7 +164,7 @@ const Router = () => {
         },
         {
           path: "notification",
-          element: <Ticketgenerate />,
+          element: <Notifications />,
         },
       ],
     },

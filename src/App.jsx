@@ -6,6 +6,9 @@ import store from "./store/store";
 import { ToastContainer } from "react-toastify";
 
 const App = () => {
+  console.error = () => {};
+  console.warn = () => {};
+
   return (
     <ErrorBoundary>
       <BrowserRouter>

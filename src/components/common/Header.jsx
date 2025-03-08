@@ -12,8 +12,9 @@ import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import PersonIcon from "@mui/icons-material/Person";
-import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import Person2Icon from "@mui/icons-material/Person2";
+import LogoutIcon from "@mui/icons-material/Logout";
+import CircleNotificationsIcon from "@mui/icons-material/CircleNotifications";
 
 // Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
@@ -76,7 +77,9 @@ export default function Header({
     handleMenuClose();
   };
 
-  const handlenotificationClick = () => {};
+  const handlenotificationClick = () => {
+    navigate("/user/notification");
+  };
 
   return (
     <AppBarStyled position="fixed" open={open}>
@@ -104,6 +107,7 @@ export default function Header({
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           Smart Ticket Support System
         </Typography>
+
         <IconButton
           color="inherit"
           aria-label="settings"
@@ -127,9 +131,19 @@ export default function Header({
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
-          <MenuItem onClick={handlenotificationClick}>Notifications</MenuItem>
+          <MenuItem onClick={handleProfileClick}>
+            <Person2Icon style={{ marginRight: "8px" }} />
+            Profile
+          </MenuItem>
+
+          <MenuItem onClick={handlenotificationClick}>
+            <CircleNotificationsIcon style={{ marginRight: "8px" }} />
+            Notifications
+          </MenuItem>
+          <MenuItem onClick={handleLogoutClick}>
+            <LogoutIcon style={{ marginRight: "8px" }} />
+            Logout
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBarStyled>

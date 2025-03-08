@@ -111,27 +111,38 @@ const routesData = {
     ],
   },
   admin: {
-    mainList: [
-      { name: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
-    ],
+    mainList: [{ name: "Dashboard", icon: <DashboardIcon />, path: "/admin" }],
     secondaryList: [
-      { name: "User", icon: <TableChartIcon />, path: "/admin/user-table" },
+      { name: "User", icon: <TableChartIcon />, path: "/super/user-table" },
       {
         name: "Staff-Member",
         icon: <PersonIcon />,
-        path: "/admin/staff-member",
+        path: "/super/staff-member",
+      },
+      {
+        name: "Ticket-Generate",
+        icon: <LocalActivityIcon />,
+        path: "/super/tickets",
       },
     ],
   },
   user: {
-    mainList: [
-      { name: "Dashboard", icon: <DashboardIcon />, path: "/user/dashboard" },
-    ],
+    mainList: [{ name: "Dashboard", icon: <DashboardIcon />, path: "/user" }],
     secondaryList: [
       {
         name: "Tickets",
         icon: <LocalActivityIcon />,
         path: "/user/tickets",
+      },
+    ],
+  },
+  staff: {
+    mainList: [{ name: "Dashboard", icon: <DashboardIcon />, path: "/staff" }],
+    secondaryList: [
+      {
+        name: "Tickets",
+        icon: <LocalActivityIcon />,
+        path: "/staff/tickets",
       },
     ],
   },
