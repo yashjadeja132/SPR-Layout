@@ -25,9 +25,13 @@ import {
   useGetAllTicketsQuery,
   useDeleteTicketMutation,
 } from "../../store/apiSlices/ticketApiSlice";
+import { useSelector } from "react-redux";
 
 function TicketGenerate() {
   // Initial form state for creating a new ticket.
+  const { user } = useSelector((state) => state.auth);
+  const userrole = user.role;
+
   const initialFormState = {
     priority: "",
     status: "",
@@ -124,11 +128,12 @@ function TicketGenerate() {
 
   return (
     <div>
-      <Button onClick={handleOpenModal} variant="contained" sx={{ mt: 2 }}>
-        Generate Tickets
-      </Button>
+      {userrole === "user" && (
+        <Button onClick={handleOpenModal} variant="contained" sx={{ mt: 2 }}>
+          Generate Tickets
+        </Button>
+      )}
 
-      {/* Modal for generating a new ticket */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
@@ -261,8 +266,11 @@ function TicketGenerate() {
                 <strong>Category:</strong> {selectedTicket.category}
               </Typography>
               <Typography>
-                <strong>Resolution Notes:</strong>{" "}
-                {selectedTicket.resolutionNotes}
+                <strong>Assignee:</strong>{" "}
+                {selectedTicket?.assigneeName || "Not assigned"}
+              </Typography>
+              <Typography>
+                <strong>Notes:</strong> {selectedTicket.resolutionNotes}
               </Typography>
             </Box>
           )}
@@ -298,7 +306,7 @@ function TicketGenerate() {
                     <TableCell>Status</TableCell>
                     <TableCell>Description</TableCell>
                     <TableCell>Category</TableCell>
-                    <TableCell>Resolution Notes</TableCell>
+                    <TableCell>Notes</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>

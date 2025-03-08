@@ -8,7 +8,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 
 // Constants
-import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE } from "../constant/constant";
+import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE, STAFF_ROLE } from "../constant/constant";
 
 // Common Pages
 import LandingPage from "../pages/common/LandingPage";
@@ -51,10 +51,6 @@ const Router = () => {
           element: <Dashboard />,
         },
         {
-          path: "dashboard",
-          element: <Dashboard />,
-        },
-        {
           path: "user-table",
           element: <UsersList />,
         },
@@ -92,7 +88,27 @@ const Router = () => {
       children: [
         {
           index: true,
+          element: <Dashboard />,
+        },
+        {
+          path: "user-table",
           element: <UsersList />,
+        },
+        {
+          path: "log-table",
+          element: <LogTable />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "staff-member",
+          element: <Staff />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
         },
       ],
     },
@@ -111,7 +127,31 @@ const Router = () => {
           element: <Dashboard />,
         },
         {
-          path: "dashboard",
+          path: "profile",
+          element: <Profile />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
+        },
+        {
+          path: "notification",
+          element: <Ticketgenerate />,
+        },
+      ],
+    },
+    {
+      path: "/staff",
+      element: (
+        <Suspense fallback={<Loader />}>
+          <ProtectedRoute allowedRoles={[STAFF_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
+        </Suspense>
+      ),
+      children: [
+        {
+          index: true,
           element: <Dashboard />,
         },
         {

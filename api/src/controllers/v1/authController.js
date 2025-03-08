@@ -131,11 +131,7 @@ exports.login = async (req, res) => {
       userId: user.userId,
     }).lean();
 
-    logUserEvent(
-      user.userId,
-      "LOGIN",
-      `User ${user.email} logged in.`
-    );
+    logUserEvent(user.userId, "LOGIN", `User ${user.email} logged in.`);
 
     // Generate token and return response
     const token = generateToken(user);
