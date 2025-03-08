@@ -21,6 +21,7 @@ import Singup from "../pages/auth/Singup";
 
 // Lazy-loaded Pages
 const UsersList = lazy(() => import("../pages/Admin/UsersList"));
+import Profile from "../pages/Admin/Profile";
 
 // Loader Component
 const Loader = () => <div className="loader">Loading...</div>;
@@ -39,10 +40,6 @@ const Router = () => {
       children: [
         {
           index: true,
-          element: <UsersList />,
-        },
-        {
-          path: "/",
           element: <UsersList />,
         },
       ],
@@ -76,6 +73,10 @@ const Router = () => {
         {
           index: true,
           element: <UsersList />,
+        },
+        {
+          path: "profile",
+          element: <Profile />,
         },
       ],
     },

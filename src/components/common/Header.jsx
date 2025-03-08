@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { styled } from "@mui/material/styles";
 import MuiAppBar from "@mui/material/AppBar";
 import Toolbar from "@mui/material/Toolbar";
@@ -6,7 +6,11 @@ import Typography from "@mui/material/Typography";
 import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
 import ChevronLeftIcon from "@mui/icons-material/ChevronLeft";
+import SettingsIcon from "@mui/icons-material/Settings";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
+import { useNavigate } from "react-router-dom";
 
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
@@ -26,6 +30,33 @@ const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
 }));
 
 export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const openMenu = Boolean(anchorEl);
+  const navigate = useNavigate();
+
+  // Handle settings menu open
+  const handleMenuOpen = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  // Handle settings menu close
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  // Navigate to the user profile page
+  const handleProfileClick = () => {
+    navigate("/user/profile");
+    handleMenuClose();
+  };
+  
+  // Handle logout action
+  const handleLogoutClick = () => {
+    console.log("Logging out...");
+    navigate("/sign-in");
+    handleMenuClose();
+  };
+
   return (
     <AppBarStyled position="fixed" open={open}>
       <Toolbar>
@@ -47,9 +78,37 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
         >
           <ChevronLeftIcon />
         </IconButton>
-        <Typography variant="h6" noWrap component="div">
+        <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           Mini variant drawer
         </Typography>
+
+        {/* Settings Icon with Menu */}
+        <IconButton
+          color="inherit"
+          aria-label="settings"
+          aria-controls="settings-menu"
+          aria-haspopup="true"
+          onClick={handleMenuOpen}
+        >
+          <SettingsIcon />
+        </IconButton>
+        <Menu
+          id="settings-menu"
+          anchorEl={anchorEl}
+          open={openMenu}
+          onClose={handleMenuClose}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+          transformOrigin={{
+            vertical: "top",
+            horizontal: "right",
+          }}
+        >
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+        </Menu>
       </Toolbar>
     </AppBarStyled>
   );
