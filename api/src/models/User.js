@@ -37,8 +37,8 @@ const userSchema = new mongoose.Schema(
       type: String,
       default: "user",
       enum: {
-        values: ["user", "admin", "super-admin"],
-        message: "Role must be one of 'user', 'super-admin, or 'admin'.",
+        values: ["user", "admin", "super-admin", "staff"],
+        message: "Role must be one of 'user', 'super-admin', 'staff', or 'admin'.",
       },
     },
 
