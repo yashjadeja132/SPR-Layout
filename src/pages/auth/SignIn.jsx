@@ -26,9 +26,19 @@ const Login = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const response = await login(credentials).unwrap(); 
-      localStorage.setItem("token", response.token); 
-      navigate("/dashboard"); 
+      const response = await login(credentials).unwrap();
+      const userRole = response.user.role; // Assuming the response contains the role
+
+      // Navigate based on user role
+      if (userRole === "super-admin") {
+        navigate("/super"); // Super Admin Dashboard
+      } else if (userRole === "admin") {
+        navigate("/admin"); // Admin Dashboard
+      } else if (userRole === "user") {
+        navigate("/user"); // User Dashboard
+      } else {
+        navigate("/sign-in"); // Default fallback
+      }
     } catch (err) {
       console.error("Login failed:", err);
     }
@@ -49,7 +59,7 @@ const Login = () => {
         sx={{
           display: "flex",
           width: "100%",
-          maxWidth: 800,
+          maxWidth: 1000,
           borderRadius: 4,
           overflow: "hidden",
           boxShadow: "0px 10px 30px rgba(0, 0, 0, 0.2)",
