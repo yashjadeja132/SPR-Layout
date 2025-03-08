@@ -11,6 +11,7 @@ import Menu from "@mui/material/Menu";
 import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
 
 // Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
@@ -30,11 +31,18 @@ const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
   }),
 }));
 
-export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
+export default function Header({
+  open,
+  handleDrawerOpen,
+  handleDrawerClose,
+  userRole,
+}) {
   const [anchorEl, setAnchorEl] = useState(null);
   const openMenu = Boolean(anchorEl);
   const navigate = useNavigate();
-
+  const { user } = useSelector((state) => state.auth);
+  const userrole = user.role;
+  console.log(user, "userrole");
   // Handle settings menu open
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -47,17 +55,25 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
 
   // Navigate to the user profile page
   const handleProfileClick = () => {
-    navigate("/user/profile");
+    if (userrole === "super-admin") {
+      navigate("/super/profile");
+    } else if (userrole === "admin") {
+      navigate("/admin/profile");
+    } else if (userrole === "user") {
+      navigate("/user/profile");
+    } else {
+      navigate("/user/profile");
+    }
     handleMenuClose();
   };
-  
+
   // Handle logout action
   const handleLogoutClick = () => {
     console.log("Logging out...");
     navigate("/sign-in");
     handleMenuClose();
   };
- 
+
   return (
     <AppBarStyled position="fixed" open={open}>
       <Toolbar>
@@ -83,7 +99,7 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
           <ChevronLeftIcon />
         </IconButton>
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
-          Mini variant drawer
+          Smart Ticket Support System
         </Typography>
 
         {/* Settings Icon with Menu */}

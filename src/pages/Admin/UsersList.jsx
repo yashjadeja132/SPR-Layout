@@ -2,7 +2,9 @@ import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import {
   useGetUsersQuery,
-  // useUpdateUserMutation,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
 } from "../../store/apiSlices/usersApiSlice";
 import { setPage } from "../../store/stateSlices/usersStateSlice";
 import {
@@ -18,60 +20,95 @@ import {
   Typography,
   CircularProgress,
   Box,
-  IconButton,
   Modal,
   TextField,
-  FormControl,
-  InputLabel,
-  Select,
-  MenuItem,
-  CircularProgress as LoadingSpinner,
+  IconButton,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
+import CloseIcon from "@mui/icons-material/Close";
 
 const UsersList = () => {
   const dispatch = useDispatch();
   const { page, limit } = useSelector((state) => state.users);
-  const [selectedUser, setSelectedUser] = useState(null);
   const [openModal, setOpenModal] = useState(false);
+  const [isEditing, setIsEditing] = useState(false);
+  const [userId, setUserId] = useState(null);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
-  const [role, setRole] = useState("");
+  const [password, setPassword] = useState("");
+  const [role, setRole] = useState("user");
   const [loading, setLoading] = useState(false);
+  const [deleteDialog, setDeleteDialog] = useState(false);
+  const [userToDelete, setUserToDelete] = useState(null);
 
-  const { data, error, isLoading } = useGetUsersQuery("user");
+  const { data, isLoading, refetch } = useGetUsersQuery("user");
+  const [createUser] = useCreateUserMutation();
+  const [updateUser] = useUpdateUserMutation();
+  const [deleteUser] = useDeleteUserMutation();
 
   const handleChangePage = (event, newPage) => {
     dispatch(setPage(newPage + 1));
   };
 
-  const handleChangeRowsPerPage = (event) => {
-    dispatch(setPage(1));
-  };
-
-  const handleEditClick = (user) => {
-    setSelectedUser(user);
-    setName(user.name);
-    setEmail(user.email);
-    setRole(user.role);
+  // Open Modal for Add/Edit
+  const handleOpenModal = (user = null) => {
+    if (user) {
+      setIsEditing(true);
+      setUserId(user.id);
+      setName(user.name);
+      setEmail(user.email);
+      setRole(user.role);
+    } else {
+      setIsEditing(false);
+      setUserId(null);
+      setName("");
+      setEmail("");
+      setPassword("");
+      setRole("user");
+    }
     setOpenModal(true);
   };
 
-  const handleUpdate = async () => {
+  // Add or Update User
+  const handleSaveUser = async () => {
     setLoading(true);
     try {
-      await updateUser({ id: selectedUser.id, name, email, role });
+      if (isEditing) {
+        await updateUser({ id: userId, name, email, role }).unwrap();
+      } else {
+        await createUser({ name, email, password, role }).unwrap();
+      }
       setOpenModal(false);
+      refetch();
     } catch (error) {
-      console.error("Error updating user:", error);
+      console.error("Error saving user:", error);
     } finally {
       setLoading(false);
     }
   };
 
-  const handleCloseModal = () => {
-    setOpenModal(false);
+  // Open Delete Confirmation Dialog
+  const handleOpenDeleteDialog = (user) => {
+    setUserToDelete(user);
+    setDeleteDialog(true);
+  };
+
+  // Delete User
+  const handleDeleteUser = async () => {
+    try {
+      await deleteUser(userToDelete.userId).unwrap();
+      setDeleteDialog(false);
+      refetch();
+    } catch (error) {
+      console.error("Error deleting user:", error);
+    }
   };
 
   if (isLoading) {
@@ -89,56 +126,86 @@ const UsersList = () => {
     );
   }
 
-  if (error) {
-    return (
-      <Typography variant="h6" color="error">
-        Error fetching users.
-      </Typography>
-    );
-  }
-  console.log(data);
-
   return (
     <div style={{ padding: "20px" }}>
-      <Typography variant="h4" gutterBottom>
-        Users List
-      </Typography>
+      {/* Header */}
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333" }}>
+          Users List
+        </Typography>
+        <Button
+          variant="contained"
+          color="primary"
+          startIcon={<AddIcon />}
+          onClick={() => handleOpenModal()}
+        >
+          Add User
+        </Button>
+      </Box>
 
-      <TableContainer component={Paper}>
-        <Table aria-label="user table">
+      {/* Responsive Table */}
+      <TableContainer
+        component={Paper}
+        sx={{ mt: 2, overflowX: "auto", borderRadius: 2, boxShadow: 3 }}
+      >
+        <Table>
           <TableHead>
-            <TableRow>
-              <TableCell>Sr</TableCell>
-              <TableCell>Name</TableCell>
-              <TableCell>Email</TableCell>
-              <TableCell>Role</TableCell>
-              <TableCell>Actions</TableCell>
+            <TableRow sx={{ backgroundColor: "#1976d2" }}>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                Sr
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                Name
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                Email
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                Role
+              </TableCell>
+              <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                Actions
+              </TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {data?.users?.map((user, index) => (
-              <TableRow key={user.id}>
+              <TableRow
+                key={user.id}
+                sx={{ backgroundColor: index % 2 ? "#f9f9f9" : "white" }}
+              >
                 <TableCell>{(page - 1) * limit + index + 1}</TableCell>
-                <TableCell>{user.name}</TableCell>
+                <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
+                  {user.name}
+                </TableCell>
                 <TableCell>{user.email}</TableCell>
-                <TableCell>{user.role}</TableCell>
                 <TableCell>
-                  <Button
-                    variant="contained"
+                  <Box
+                    sx={{
+                      display: "inline-block",
+                      padding: "5px 10px",
+                      borderRadius: "12px",
+                      backgroundColor:
+                        user.role === "admin" ? "#ff9800" : "#4caf50",
+                      color: "white",
+                      fontSize: "0.9rem",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {user.role}
+                  </Box>
+                </TableCell>
+                <TableCell>
+                  <IconButton
+                    onClick={() => handleOpenModal(user)}
                     color="primary"
-                    size="small"
-                    onClick={() => handleEditClick(user)}
-                    style={{ marginRight: 10 }}
                   >
                     <EditIcon />
-                    Edit
-                  </Button>
+                  </IconButton>
                   <IconButton
-                    variant="outlined"
-                    color="secondary"
-                    // onClick={() => handleDelete(user.id)}  // Uncomment once delete is implemented
-                    size="small"
+                    onClick={() => handleOpenDeleteDialog(user)}
+                    color="error"
                   >
                     <DeleteIcon />
                   </IconButton>
@@ -156,16 +223,10 @@ const UsersList = () => {
         rowsPerPage={limit}
         page={page - 1}
         onPageChange={handleChangePage}
-        onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
-      {/* Edit User Modal */}
-      <Modal
-        open={openModal}
-        onClose={handleCloseModal}
-        aria-labelledby="edit-user-modal"
-        aria-describedby="edit-user-modal-description"
-      >
+      {/* Add/Edit User Modal */}
+      <Modal open={openModal} onClose={() => setOpenModal(false)}>
         <Box
           sx={{
             position: "absolute",
@@ -176,11 +237,11 @@ const UsersList = () => {
             padding: 4,
             borderRadius: 2,
             boxShadow: 24,
-            width: 400,
+            width: { xs: 300, sm: 400 },
           }}
         >
-          <Typography variant="h6" gutterBottom>
-            Edit User
+          <Typography variant="h6">
+            {isEditing ? "Edit User" : "Add User"}
           </Typography>
           <TextField
             label="Name"
@@ -196,38 +257,43 @@ const UsersList = () => {
             onChange={(e) => setEmail(e.target.value)}
             margin="normal"
           />
-          <FormControl fullWidth margin="normal">
-            <InputLabel>Role</InputLabel>
-            <Select
-              value={role}
-              onChange={(e) => setRole(e.target.value)}
-              label="Role"
-            >
-              <MenuItem value="user">User</MenuItem>
-              <MenuItem value="admin">Admin</MenuItem>
-              <MenuItem value="super-admin">Super Admin</MenuItem>
-            </Select>
-          </FormControl>
-          <Box sx={{ display: "flex", justifyContent: "flex-end" }}>
-            <Button
-              variant="outlined"
-              color="secondary"
-              onClick={handleCloseModal}
-              sx={{ marginRight: 1 }}
-            >
-              Cancel
-            </Button>
-            <Button
-              variant="contained"
-              color="primary"
-              onClick={handleUpdate}
-              disabled={loading}
-            >
-              {loading ? <LoadingSpinner size={24} /> : "Save"}
-            </Button>
-          </Box>
+          {!isEditing && (
+            <TextField
+              label="Password"
+              type="password"
+              fullWidth
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              margin="normal"
+            />
+          )}
+          <Button
+            variant="contained"
+            color="primary"
+            fullWidth
+            onClick={handleSaveUser}
+            sx={{ mt: 2 }}
+          >
+            {loading ? "Saving..." : isEditing ? "Update" : "Add"}
+          </Button>
         </Box>
       </Modal>
+
+      {/* Delete Confirmation Dialog */}
+      <Dialog open={deleteDialog} onClose={() => setDeleteDialog(false)}>
+        <DialogTitle>Confirm Delete</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            Are you sure you want to delete this user?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialog(false)}>Cancel</Button>
+          <Button onClick={handleDeleteUser} color="error">
+            Delete
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

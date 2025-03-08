@@ -10,6 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { drawerWidth } from "../../../constant/constant";
 import HistoryIcon from "@mui/icons-material/History";
+import GridViewIcon from "@mui/icons-material/GridView";
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -94,6 +95,7 @@ export default function Sidebar({ open }) {
 
   const secondaryList = [
     { name: "User-Table", icon: <TableChartIcon />, path: "/super/user-table" },
+    { name: "Admin-Table", icon: <GridViewIcon />, path: "/super/admin-table" },
     { name: "Log-Table", icon: <HistoryIcon />, path: "/super/log-table" },
     { name: "Ticket-Table", icon: <TicketIcon />, path: "/super/ticket-table" },
   ];
