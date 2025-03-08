@@ -5,6 +5,7 @@ const cors = require("cors");
 const routes = require("./routes/routes");
 require("./config/env");
 require("./config/db");
+// require("./helpers/email");
 
 const app = express();
 const appUrl = process.env.APP_URL;

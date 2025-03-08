@@ -23,6 +23,11 @@ const eventLogSchema = new mongoose.Schema(
         "LOGOUT",
         "UPDATE_PROFILE",
         "CREATE_TICKET",
+        "ADMIN_UPDATE_USER",
+        "ADMIN_DELETE_USER",
+        "UPDATE_TICKET",
+        "DELETE_TICKET",
+        "ADMIN_ADD_USER",
       ],
     },
 
