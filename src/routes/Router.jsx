@@ -71,6 +71,10 @@ const Router = () => {
           path: "profile",
           element: <Profile />,
         },
+        {
+          path: "staff-member",
+          element: <Staff />,
+        },
       ],
     },
     {
