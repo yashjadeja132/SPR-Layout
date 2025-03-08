@@ -12,6 +12,8 @@ import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import PersonIcon from "@mui/icons-material/Person";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 
 // Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
@@ -102,7 +104,6 @@ export default function Header({
           Smart Ticket Support System
         </Typography>
 
-        Settings Icon with Menu
         <IconButton
           color="inherit"
           aria-label="settings"
@@ -126,8 +127,14 @@ export default function Header({
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
-          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+          <MenuItem onClick={handleProfileClick}>
+            <PersonIcon sx={{ marginRight: 1 }} />
+            Profile
+          </MenuItem>
+          <MenuItem onClick={handleLogoutClick}>
+            <ExitToAppIcon sx={{ marginRight: 1 }} />
+            Logout
+          </MenuItem>
         </Menu>
       </Toolbar>
     </AppBarStyled>
