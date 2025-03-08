@@ -34,7 +34,7 @@ import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
 
-const UsersList = () => {
+const AdminList = () => {
   const dispatch = useDispatch();
   const { page, limit } = useSelector((state) => state.users);
   const [openModal, setOpenModal] = useState(false);
@@ -48,7 +48,7 @@ const UsersList = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const { data, isLoading, refetch } = useGetUsersQuery("user");
+  const { data, isLoading, refetch } = useGetUsersQuery("admin");
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
@@ -71,7 +71,7 @@ const UsersList = () => {
       setName("");
       setEmail("");
       setPassword("");
-      setRole("user");
+      setRole("admin");
     }
     setOpenModal(true);
   };
@@ -131,7 +131,7 @@ const UsersList = () => {
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333" }}>
-          Users List
+          Admin List
         </Typography>
         <Button
           variant="contained"
@@ -298,4 +298,4 @@ const UsersList = () => {
   );
 };
 
-export default UsersList;
+export default AdminList;

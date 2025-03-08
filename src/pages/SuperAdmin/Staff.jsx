@@ -48,7 +48,7 @@ const UsersList = () => {
   const [deleteDialog, setDeleteDialog] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
 
-  const { data, isLoading, refetch } = useGetUsersQuery("user");
+  const { data, isLoading, refetch } = useGetUsersQuery("staff");
   const [createUser] = useCreateUserMutation();
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
@@ -71,7 +71,7 @@ const UsersList = () => {
       setName("");
       setEmail("");
       setPassword("");
-      setRole("user");
+      setRole("staff");
     }
     setOpenModal(true);
   };
@@ -131,7 +131,7 @@ const UsersList = () => {
       {/* Header */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Typography variant="h5" sx={{ fontWeight: "bold", color: "#333" }}>
-          Users List
+          Staff List
         </Typography>
         <Button
           variant="contained"
@@ -139,7 +139,7 @@ const UsersList = () => {
           startIcon={<AddIcon />}
           onClick={() => handleOpenModal()}
         >
-          Add User
+          Add Staff Member
         </Button>
       </Box>
 

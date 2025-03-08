@@ -1,161 +1,133 @@
 import React from "react";
+import { Box, CssBaseline, Grid, Typography } from "@mui/material";
+import { styled } from "@mui/system";
+import { Line } from "react-chartjs-2";
 import {
-  AppBar,
-  Box,
-  CssBaseline,
-  Drawer,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Toolbar,
-  Typography,
-  Divider,
-} from "@mui/material";
-import { Menu as MenuIcon } from "@mui/icons-material";
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+} from "chart.js";
 
-const drawerWidth = 240;
+// Register Chart.js components
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
-function Dashboard() {
-  const [open, setOpen] = React.useState(false);
+// Dummy data
+const dashboardData = {
+  totalUsers: 1250,
+  activeTickets: 80,
+  pendingApprovals: 12,
+  graphData: {
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
+    data: [400, 600, 750, 900, 1100, 1250, 1300],
+  },
+};
 
-  const toggleDrawer = () => setOpen(!open);
+const StyledBox = styled(Box)({
+  padding: "20px",
+  borderRadius: "15px",
+  backdropFilter: "blur(10px)",
+  backgroundColor: "rgba(255, 255, 255, 0.15)",
+  color: "#fff",
+  boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.2)",
+  transition: "transform 0.3s ease, box-shadow 0.3s ease",
+  "&:hover": {
+    transform: "scale(1.05)",
+    boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.3)",
+  },
+  textAlign: "center",
+});
+
+const Dashboard = () => {
+  // Graph Data
+  const chartData = {
+    labels: dashboardData.graphData.labels,
+    datasets: [
+      {
+        label: "User Growth",
+        data: dashboardData.graphData.data,
+        fill: false,
+        backgroundColor: "rgba(75,192,192,1)",
+        borderColor: "rgba(75,192,192,1)",
+        tension: 0.4, // Smooth curve effect
+      },
+    ],
+  };
 
   return (
-    <Box sx={{ display: "flex" }}>
+    <Box
+      sx={{
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        minHeight: "100vh",
+        background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+        padding: 3,
+      }}
+    >
       <CssBaseline />
-
-      {/* App Bar */}
-      <AppBar
-        position="fixed"
-        sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
-      >
-        <Toolbar>
-          <IconButton
-            edge="start"
-            color="inherit"
-            aria-label="menu"
-            onClick={toggleDrawer}
-            sx={{ mr: 2 }}
-          >
-            <MenuIcon />
-          </IconButton>
-          <Typography variant="h6" noWrap>
-            Super Admin Dashboard
-          </Typography>
-        </Toolbar>
-      </AppBar>
-
-      {/* Sidebar Drawer */}
-      <Drawer
-        sx={{
-          // width: drawerWidth,
-          flexShrink: 0,
-          "& .MuiDrawer-paper": {
-            // width: drawerWidth,
-            boxSizing: "border-box",
-            backgroundColor: "primary.dark", // Dark background for the drawer
-            color: "white",
-            transition: "all 0.3s ease", // Smooth transition
-          },
-        }}
-        variant="persistent"
-        anchor="left"
-        open={open}
-      >
-        <List>
-          <ListItem button>
-            <ListItemText primary="Dashboard" />
-          </ListItem>
-          <Divider />
-          <ListItem button>
-            <ListItemText primary="Users" />
-          </ListItem>
-          <ListItem button>
-            <ListItemText primary="Settings" />
-          </ListItem>
-        </List>
-      </Drawer>
-
-      {/* Main Content */}
-      <Box
-        component="main"
-        sx={{
-          flexGrow: 1,
-          bgcolor: "background.default",
-          padding: 3,
-          marginLeft: open ? `${drawerWidth}px` : "0px",
-          transition: "margin-left 0.3s ease", // Smooth transition for content shift
-        }}
-      >
-        <Grid container spacing={3}>
-          {/* Section 1 */}
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "primary.main",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: "transform 0.3s ease-in-out",
-                "&:hover": {
-                  transform: "translateY(-10px)", // Hover effect
-                  boxShadow: 6, // Enhanced shadow on hover
-                },
-              }}
-            >
-              <Typography variant="h6">Total Users</Typography>
-              <Typography variant="h4">1250</Typography>
-            </Box>
-          </Grid>
-
-          {/* Section 2 */}
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "secondary.main",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: "transform 0.3s ease-in-out",
-                "&:hover": {
-                  transform: "translateY(-10px)", // Hover effect
-                  boxShadow: 6, // Enhanced shadow on hover
-                },
-              }}
-            >
-              <Typography variant="h6">Active Tickets</Typography>
-              <Typography variant="h4">80</Typography>
-            </Box>
-          </Grid>
-
-          {/* Section 3 */}
-          <Grid item xs={12} md={4}>
-            <Box
-              sx={{
-                p: 3,
-                bgcolor: "info.main",
-                color: "white",
-                borderRadius: 2,
-                boxShadow: 3,
-                transition: "transform 0.3s ease-in-out",
-                "&:hover": {
-                  transform: "translateY(-10px)", // Hover effect
-                  boxShadow: 6, // Enhanced shadow on hover
-                },
-              }}
-            >
-              <Typography variant="h6">Pending Approvals</Typography>
-              <Typography variant="h4">12</Typography>
-            </Box>
-          </Grid>
+      <Grid container spacing={3} sx={{ maxWidth: "1200px" }}>
+        {/* Total Users */}
+        <Grid item xs={12} sm={6} md={4}>
+          <StyledBox>
+            <Typography variant="h6">Total Users</Typography>
+            <Typography variant="h3" fontWeight="bold">
+              {dashboardData.totalUsers}
+            </Typography>
+          </StyledBox>
         </Grid>
-      </Box>
+
+        {/* Active Tickets */}
+        <Grid item xs={12} sm={6} md={4}>
+          <StyledBox>
+            <Typography variant="h6">Active Tickets</Typography>
+            <Typography variant="h3" fontWeight="bold">
+              {dashboardData.activeTickets}
+            </Typography>
+          </StyledBox>
+        </Grid>
+
+        {/* Pending Approvals */}
+        <Grid item xs={12} sm={6} md={4}>
+          <StyledBox>
+            <Typography variant="h6">Pending Approvals</Typography>
+            <Typography variant="h3" fontWeight="bold">
+              {dashboardData.pendingApprovals}
+            </Typography>
+          </StyledBox>
+        </Grid>
+
+        {/* Graph Section */}
+        <Grid item xs={12}>
+          <Box
+            sx={{
+              backgroundColor: "rgb(254, 247, 247)",
+              padding: 3,
+              borderRadius: 2,
+              boxShadow: 3,
+            }}
+          >
+            <Typography variant="h5" align="center" color="white" gutterBottom>
+              User Growth Over Time
+            </Typography>
+            <Line data={chartData} />
+          </Box>
+        </Grid>
+      </Grid>
     </Box>
   );
-}
+};
 
 export default Dashboard;

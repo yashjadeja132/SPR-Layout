@@ -18,21 +18,26 @@ export const usersApiSlice = createApi({
   endpoints: (builder) => ({
     getUsers: builder.query({
       query: (userRole = "user") => `/all?userRole=${userRole}`,
-      keepUnusedDataFor: 300,
-      providesTags: (result, error, { userRole }) =>
-        result ? [{ type: "Users", id: userRole }] : [],
+    }),
+    createUser: builder.mutation({
+      query: (newUser) => ({
+        url: "/",
+        method: "POST",
+        body: newUser,
+      }),
+      invalidatesTags: [{ type: "Users", id: "LIST" }],
     }),
     updateUser: builder.mutation({
-      query: ({ id, name, email, role }) => ({
-        url: `/update/${id}`,
+      query: ({ userId, name, email }) => ({
+        url: `/${userId}`,
         method: "PUT",
-        body: { name, email, role },
+        body: { name, email },
       }),
       invalidatesTags: [{ type: "Users", id: "LIST" }],
     }),
     deleteUser: builder.mutation({
       query: (userId) => ({
-        url: `/delete/${userId}`,
+        url: `/${userId}`,
         method: "DELETE",
       }),
       invalidatesTags: [{ type: "Users", id: "LIST" }],
@@ -40,4 +45,9 @@ export const usersApiSlice = createApi({
   }),
 });
 
-export const { useGetUsersQuery, usePrefetch } = usersApiSlice;
+export const {
+  useGetUsersQuery,
+  useCreateUserMutation,
+  useUpdateUserMutation,
+  useDeleteUserMutation,
+} = usersApiSlice;
