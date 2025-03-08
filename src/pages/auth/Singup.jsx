@@ -144,7 +144,7 @@ const Signup = () => {
               <Typography
                 variant="body2"
                 component={Link}
-                to="/auth/login"
+                to="/sign-in"
                 align="center"
                 sx={{
                   display: "block",

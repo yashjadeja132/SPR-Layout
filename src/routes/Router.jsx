@@ -21,6 +21,9 @@ import Singup from "../pages/auth/Singup";
 
 // Lazy-loaded Pages
 const UsersList = lazy(() => import("../pages/Admin/UsersList"));
+const Dashboard = lazy(() => import("../pages/SuperAdmin/Dashboard"));
+const TicketTable = lazy(() => import("../pages/SuperAdmin/TicketTable"));
+const LogTable = lazy(() => import("../pages/SuperAdmin/LogTable"));
 
 // Loader Component
 const Loader = () => <div className="loader">Loading...</div>;
@@ -39,11 +42,23 @@ const Router = () => {
       children: [
         {
           index: true,
+          element: <Dashboard />,
+        },
+        {
+          path: "dashboard",
+          element: <Dashboard />,
+        },
+        {
+          path: "user-table",
           element: <UsersList />,
         },
         {
-          path: "/",
-          element: <UsersList />,
+          path: "log-table",
+          element: <LogTable />,
+        },
+        {
+          path: "ticket-table",
+          element: <TicketTable />,
         },
       ],
     },

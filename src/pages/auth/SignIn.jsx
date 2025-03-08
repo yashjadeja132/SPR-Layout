@@ -12,10 +12,13 @@ import {
 } from "@mui/material";
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../store/apiSlices/authApiSlice";
+import { setCredentials as setLoginCredentials } from "../../store/stateSlices/authStateSlice";
 import LoginImage from "../../assets/svg/login.jpg";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
 
@@ -27,7 +30,9 @@ const Login = () => {
     e.preventDefault();
     try {
       const response = await login(credentials).unwrap();
-      const userRole = response.user.role; // Assuming the response contains the role
+      const userRole = response.user.role;
+
+      dispatch(setLoginCredentials(response));
 
       // Navigate based on user role
       if (userRole === "super-admin") {
@@ -157,7 +162,7 @@ const Login = () => {
             <Typography
               variant="body2"
               component={Link}
-              to="/auth/sign-up"
+              to="/sign-up"
               align="center"
               sx={{
                 display: "block",
