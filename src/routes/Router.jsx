@@ -28,7 +28,7 @@ const Loader = () => <div className="loader">Loading...</div>;
 const Router = () => {
   const routes = useRoutes([
     {
-      path: "/a",
+      path: "/s",
       element: (
         <Suspense fallback={<Loader />}>
           <ProtectedRoute allowedRoles={[ADMIN_ROLE]}>
@@ -44,7 +44,7 @@ const Router = () => {
       ],
     },
     {
-      path: "/m/:admin",
+      path: "/a",
       element: (
         <Suspense fallback={<Loader />}>
           <ProtectedRoute allowedRoles={[MEMBER_ROLE]}>
@@ -60,8 +60,20 @@ const Router = () => {
       ],
     },
     {
-      path: "/user",
-      element: <LandingPage />,
+      path: "/u",
+      element: (
+        <Suspense fallback={<Loader />}>
+          <ProtectedRoute allowedRoles={[MEMBER_ROLE]}>
+            <MainLayout />
+          </ProtectedRoute>
+        </Suspense>
+      ),
+      children: [
+        {
+          index: true,
+          element: <UsersList />,
+        },
+      ],
     },
     {
       path: "/sign-in",
