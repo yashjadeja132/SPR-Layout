@@ -96,6 +96,14 @@ const UsersList = () => {
       return;
     }
 
+    // Check if email already exists
+    const emailExists = data?.users.some((user) => user.email === email);
+    if (emailExists) {
+      toast.error("Email already exists!");
+      setLoading(false);
+      return;
+    }
+
     // Password length validation (only for new users)
     if (!isEditing && (!password || password.length < 6)) {
       toast.error("Password must be at least 6 characters long!");
@@ -105,7 +113,7 @@ const UsersList = () => {
 
     try {
       if (isEditing) {
-        await updateUser({ userId: userId, name, email, role }).unwrap();
+        await updateUser({ userId, name, email, role }).unwrap();
       } else {
         await createUser({ name, email, password, role }).unwrap();
       }
@@ -313,6 +321,15 @@ const UsersList = () => {
           >
             {loading ? "Saving..." : isEditing ? "Update" : "Add"}
           </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => setOpenModal(false)}
+            sx={{ mt: 1 }}
+          >
+            Cancel
+          </Button>
         </Box>
       </Modal>
 
@@ -331,6 +348,8 @@ const UsersList = () => {
           </Button>
         </DialogActions>
       </Dialog>
+
+      <ToastContainer />
     </div>
   );
 };

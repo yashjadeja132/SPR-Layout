@@ -27,7 +27,7 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
-  TablePagination, // Added for pagination
+  TablePagination,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
@@ -53,18 +53,14 @@ const Staff = () => {
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
 
-  // Handle page change
   const handleChangePage = (event, newPage) => {
-    dispatch(setPage(newPage + 1)); // Material UI uses zero-based indexing
+    dispatch(setPage(newPage + 1));
   };
 
-  // Handle rows per page change
   const handleChangeRowsPerPage = (event) => {
-    dispatch(setPage(1)); // Reset to page 1 when changing rows per page
-    // You might want to implement the limit changing here, but for now it stays constant
+    dispatch(setPage(1));
   };
 
-  // Open Modal for Add/Edit
   const handleOpenModal = (user = null) => {
     if (user) {
       setIsEditing(true);
@@ -83,7 +79,6 @@ const Staff = () => {
     setOpenModal(true);
   };
 
-  // Validate fields
   const validateFields = () => {
     if (!name) {
       toast.error("Name is required!");
@@ -109,7 +104,7 @@ const Staff = () => {
   };
 
   const handleSaveUser = async () => {
-    if (!validateFields()) return; // Validate before saving
+    if (!validateFields()) return;
 
     setLoading(true);
     try {
@@ -194,7 +189,7 @@ const Staff = () => {
         </Button>
       </Box>
 
-      {/* Responsive Table */}
+      {/* Table */}
       <TableContainer
         component={Paper}
         sx={{ mt: 2, overflowX: "auto", borderRadius: 2, boxShadow: 3 }}
@@ -273,7 +268,7 @@ const Staff = () => {
         component="div"
         count={data?.users.length || 0}
         rowsPerPage={rowsPerPage}
-        page={page - 1} // Material UI pagination is zero-based
+        page={page - 1}
         onPageChange={handleChangePage}
         onRowsPerPageChange={handleChangeRowsPerPage}
       />
@@ -328,6 +323,15 @@ const Staff = () => {
             sx={{ mt: 2 }}
           >
             {loading ? "Saving..." : isEditing ? "Update" : "Add"}
+          </Button>
+          <Button
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            onClick={() => setOpenModal(false)}
+            sx={{ mt: 2 }}
+          >
+            Cancel
           </Button>
         </Box>
       </Modal>

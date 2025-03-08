@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
@@ -28,9 +28,9 @@ import {
 } from "../../store/apiSlices/ticketApiSlice";
 import { useSelector } from "react-redux";
 import { Grid } from "@mui/material";
+import { toast } from "react-toastify";
 
 function TicketGenerate() {
-  // Initial form state for creating a new ticket.
   const { user } = useSelector((state) => state.auth);
   const userrole = user.role;
 
@@ -51,14 +51,18 @@ function TicketGenerate() {
   const [createTicket] = useCreateTicketMutation();
   const [deleteTicket] = useDeleteTicketMutation();
 
-  // Pagination state
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
-  // Fetch tickets.
   const { data, error, isLoading, refetch } = useGetAllTicketsQuery();
 
-  // Handle form input changes.
+  // Refetch data whenever the modal is closed
+  useEffect(() => {
+    if (!openModal) {
+      refetch();
+    }
+  }, [openModal, refetch]);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -67,25 +71,22 @@ function TicketGenerate() {
     }));
     setFormErrors((prev) => ({
       ...prev,
-      [name]: "", // Clear the error for the field as the user is typing
+      [name]: "",
     }));
   };
 
-  // Open the "Generate Ticket" modal.
   const handleOpenModal = () => {
     setFormData(initialFormState);
     setFormErrors({});
     setOpenModal(true);
   };
 
-  // Close the "Generate Ticket" modal.
   const handleCloseModal = () => {
     setFormData(initialFormState);
     setFormErrors({});
     setOpenModal(false);
   };
 
-  // Validate the form.
   const validateForm = () => {
     const errors = {};
 
@@ -103,39 +104,36 @@ function TicketGenerate() {
     }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0; // Return true if there are no errors
+    return Object.keys(errors).length === 0;
   };
 
-  // Create a new ticket and refresh the ticket list.
   const handleGenerateTicket = async () => {
     const isValid = validateForm();
     if (!isValid) {
-      return; // Do not submit the form if there are errors
+      return;
     }
 
     try {
       const response = await createTicket(formData).unwrap();
       console.log("Ticket generated:", response);
-      refetch();
+      toast.success("Ticket added successfully!");
+      refetch(); // Refetch data after successful ticket creation
     } catch (err) {
       console.error("Error generating ticket:", err);
     }
     handleCloseModal();
   };
 
-  // Open ticket detail modal when a row is clicked.
   const handleOpenTicketDetail = (ticket) => {
     setSelectedTicket(ticket);
     setOpenDetailModal(true);
   };
 
-  // Close the ticket detail modal.
   const handleCloseTicketDetail = () => {
     setSelectedTicket(null);
     setOpenDetailModal(false);
   };
 
-  // Modal styling.
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -150,12 +148,10 @@ function TicketGenerate() {
     outline: "none",
   };
 
-  // Calculate tickets to display for the current page.
   const paginatedTickets = data?.tickets
     ? data.tickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : [];
 
-  // Handle pagination page change.
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -290,7 +286,6 @@ function TicketGenerate() {
         </Box>
       </Modal>
 
-      {/* Modal for ticket details */}
       <Modal open={openDetailModal} onClose={handleCloseTicketDetail}>
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
@@ -331,7 +326,6 @@ function TicketGenerate() {
         </Box>
       </Modal>
 
-      {/* Ticket Table */}
       <Box sx={{ mt: 4 }}>
         <Grid
           container
@@ -379,7 +373,7 @@ function TicketGenerate() {
                         <TableCell>{ticket.status}</TableCell>
                         <TableCell>{ticket.description}</TableCell>
                         <TableCell>{ticket.category}</TableCell>
-                        <TableCell>{ticket.resolutionNotes}</TableCell>
+                        <TableCell>{ticket.resolutionNotes || "-"}</TableCell>
                       </TableRow>
                     ))
                   ) : (

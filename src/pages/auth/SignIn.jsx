@@ -20,7 +20,7 @@ import { useDispatch } from "react-redux";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-const Login = () => {
+const SignIn = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
@@ -48,17 +48,22 @@ const Login = () => {
 
     try {
       const response = await login(credentials).unwrap();
+      console.log(response,"responseresponse")
       const userRole = response.user.role;
-
+      console.log(userRole, "userRole");
       dispatch(setLoginCredentials(response));
 
       if (userRole === "super-admin") {
+        toast.success("Super Admin logged in successfully!");
         navigate("/super");
       } else if (userRole === "admin") {
+        toast.success("Admin logged in successfully!");
         navigate("/admin");
       } else if (userRole === "user") {
+        toast.success("User logged in successfully!");
         navigate("/user");
       } else if (userRole === "staff") {
+        toast.success("Staff logged in successfully!");
         navigate("/staff");
       } else {
         navigate("/sign-in");
@@ -207,4 +212,4 @@ const Login = () => {
   );
 };
 
-export default Login;
+export default SignIn;
