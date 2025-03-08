@@ -12,6 +12,7 @@ import MenuItem from "@mui/material/MenuItem";
 import { drawerWidth } from "../../constant/constant";
 import { useNavigate } from "react-router-dom";
 
+// Styled AppBar component
 const AppBarStyled = styled(MuiAppBar)(({ theme, open }) => ({
   zIndex: theme.zIndex.drawer + 1,
   width: `calc(100% - ${theme.spacing(8)} + 1px)`,
@@ -56,10 +57,11 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
     navigate("/sign-in");
     handleMenuClose();
   };
-
+ 
   return (
     <AppBarStyled position="fixed" open={open}>
       <Toolbar>
+        {/* Drawer Toggle Icon */}
         <IconButton
           color="inherit"
           aria-label="open drawer"
@@ -69,6 +71,8 @@ export default function Header({ open, handleDrawerOpen, handleDrawerClose }) {
         >
           <MenuIcon />
         </IconButton>
+
+        {/* Drawer Close Icon */}
         <IconButton
           color="inherit"
           aria-label="close drawer"

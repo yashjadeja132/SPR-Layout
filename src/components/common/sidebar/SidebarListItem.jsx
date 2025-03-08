@@ -5,8 +5,16 @@ import {
   ListItemIcon,
   ListItemText,
 } from "@mui/material";
+import { useNavigate } from "react-router-dom";
 
 const SidebarListItem = ({ open, listItem }) => {
+  const navigate = useNavigate(); // Initialize useNavigate hook
+
+  const handleClick = () => {
+    if (listItem.path) {
+      navigate(listItem.path); // Navigate to the specified path
+    }
+  };
   return (
     <ListItem
       disablePadding
@@ -26,6 +34,7 @@ const SidebarListItem = ({ open, listItem }) => {
                 justifyContent: "center",
               },
         ]}
+        onClick={handleClick}
       >
         <ListItemIcon
           sx={[

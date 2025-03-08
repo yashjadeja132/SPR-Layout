@@ -15,10 +15,13 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { Link, useNavigate } from "react-router-dom";
 import { useLoginMutation } from "../../store/apiSlices/authApiSlice";
+import { setCredentials as setLoginCredentials } from "../../store/stateSlices/authStateSlice";
 import LoginImage from "../../assets/svg/login.jpg";
+import { useDispatch } from "react-redux";
 
 const Login = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [login, { isLoading, error }] = useLoginMutation();
   const [credentials, setCredentials] = useState({ email: "", password: "" });
   const [showPassword, setShowPassword] = useState(false);
@@ -32,6 +35,8 @@ const Login = () => {
     try {
       const response = await login(credentials).unwrap();
       const userRole = response.user.role;
+
+      dispatch(setLoginCredentials(response));
 
       if (userRole === "super-admin") {
         navigate("/super");
@@ -174,7 +179,7 @@ const Login = () => {
             <Typography
               variant="body2"
               component={Link}
-              to="/auth/sign-up"
+              to="/sign-up"
               align="center"
               sx={{
                 display: "block",

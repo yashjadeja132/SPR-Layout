@@ -2,10 +2,14 @@ import React from "react";
 import { styled } from "@mui/material/styles";
 import MuiDrawer from "@mui/material/Drawer";
 import Divider from "@mui/material/Divider";
-import InboxIcon from "@mui/icons-material/MoveToInbox";
-import MailIcon from "@mui/icons-material/Mail";
-import SidebarList from "./SidebarList";
+import DashboardIcon from "@mui/icons-material/Dashboard";
+import PersonIcon from "@mui/icons-material/Person";
+import TableChartIcon from "@mui/icons-material/TableChart";
+import TicketIcon from "@mui/icons-material/ConfirmationNumber";
+import { Link, useLocation } from "react-router-dom";
+import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { drawerWidth } from "../../../constant/constant";
+import HistoryIcon from "@mui/icons-material/History";
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -38,39 +42,60 @@ const DrawerHeader = styled("div")(({ theme }) => ({
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
-})(({ theme }) => ({
+})(({ theme, open }) => ({
   width: drawerWidth,
   flexShrink: 0,
   whiteSpace: "nowrap",
   boxSizing: "border-box",
-  variants: [
-    {
-      props: ({ open }) => open,
-      style: {
-        ...openedMixin(theme),
-        "& .MuiDrawer-paper": openedMixin(theme),
-      },
-    },
-    {
-      props: ({ open }) => !open,
-      style: {
-        ...closedMixin(theme),
-        "& .MuiDrawer-paper": closedMixin(theme),
-      },
-    },
-  ],
+  ...(open && {
+    "& .MuiDrawer-paper": openedMixin(theme),
+  }),
+  ...(!open && {
+    "& .MuiDrawer-paper": closedMixin(theme),
+  }),
 }));
+
+function SidebarList({ open, listItems }) {
+  const location = useLocation(); // Get current route path
+
+  const isActive = (path) => location.pathname === path; // Check if path matches current location
+
+  return (
+    <List>
+      {listItems.map((item, index) => (
+        <ListItem
+          button
+          key={index}
+          component={Link}
+          to={item.path}
+          sx={{
+            backgroundColor: isActive(item.path)
+              ? "primary.main"
+              : "transparent",
+            color: isActive(item.path) ? "white" : "inherit",
+          }}
+        >
+          <ListItemIcon
+            sx={{ color: isActive(item.path) ? "white" : "inherit" }}
+          >
+            {item.icon}
+          </ListItemIcon>
+          <ListItemText primary={item.name} />
+        </ListItem>
+      ))}
+    </List>
+  );
+}
 
 export default function Sidebar({ open }) {
   const mainList = [
-    { name: "Inbox", icon: <InboxIcon /> },
-    { name: "Starred", icon: <MailIcon /> },
+    { name: "Dashboard", icon: <DashboardIcon />, path: "/super/dashboard" },
   ];
 
   const secondaryList = [
-    { name: "All mail", icon: <InboxIcon />, active: true },
-    { name: "Trash", icon: <MailIcon /> },
-    { name: "Spam", icon: <InboxIcon /> },
+    { name: "User-Table", icon: <TableChartIcon />, path: "/super/user-table" },
+    { name: "Log-Table", icon: <HistoryIcon />, path: "/super/log-table" },
+    { name: "Ticket-Table", icon: <TicketIcon />, path: "/super/ticket-table" },
   ];
 
   const sidebarLists = [mainList, secondaryList];
@@ -78,10 +103,10 @@ export default function Sidebar({ open }) {
   return (
     <Drawer variant="permanent" open={open}>
       <DrawerHeader>Logo</DrawerHeader>
-      {sidebarLists?.map((item, index) => (
+      {sidebarLists.map((list, index) => (
         <React.Fragment key={index}>
           <Divider />
-          <SidebarList open={open} listItems={item} />
+          <SidebarList open={open} listItems={list} />
         </React.Fragment>
       ))}
     </Drawer>

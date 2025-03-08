@@ -8,7 +8,39 @@ exports.getAllUsers = async (req, res) => {
   try {
     const { userRole = "user" } = req.query;
 
-    const users = await User.find({ role: userRole }).select("-password");
+    const users = await User.aggregate([
+      {
+        $match: {
+          role: userRole,
+          isDeleted: false, // Ensure we only fetch non-deleted users
+        },
+      },
+      {
+        $lookup: {
+          from: "user-profiles", // Ensure correct collection name
+          localField: "userId",
+          foreignField: "userId",
+          as: "userProfile",
+        },
+      },
+      {
+        $unwind: {
+          path: "$userProfile",
+          preserveNullAndEmptyArrays: true, // Prevents errors if no profile exists
+        },
+      },
+      {
+        $addFields: {
+          name: "$userProfile.name",
+        },
+      },
+      {
+        $project: {
+          password: 0,
+          userProfile: 0,
+        },
+      },
+    ]);
 
     res.status(200).json({ success: true, count: users.length, users });
   } catch (error) {
