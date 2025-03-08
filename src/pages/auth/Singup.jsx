@@ -35,6 +35,7 @@ const Signup = () => {
     try {
       const userData = await register({ name, email, password }).unwrap();
       dispatch(setCredentials(userData));
+      console.log("Registration Successful"); // Debugging
       toast.success("Registration Successful!", {
         position: "top-right",
         autoClose: 3000,
@@ -45,8 +46,9 @@ const Signup = () => {
         progress: undefined,
         theme: "colored",
       });
-      navigate("/dashboard");
+      navigate("/user/profile");
     } catch (err) {
+      console.log("Registration Failed"); // Debugging
       toast.error("Registration Failed!", {
         position: "top-right",
         autoClose: 3000,
@@ -203,7 +205,8 @@ const Signup = () => {
           </CardContent>
         </Box>
       </Card>
-      <ToastContainer />
+
+      <ToastContainer style={{ zIndex: 9999 }} />
     </Box>
   );
 };
