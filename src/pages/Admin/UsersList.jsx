@@ -61,7 +61,7 @@ const UsersList = () => {
   const handleOpenModal = (user = null) => {
     if (user) {
       setIsEditing(true);
-      setUserId(user.id);
+      setUserId(user.userId);
       setName(user.name);
       setEmail(user.email);
       setRole(user.role);
@@ -81,7 +81,7 @@ const UsersList = () => {
     setLoading(true);
     try {
       if (isEditing) {
-        await updateUser({ id: userId, name, email, role }).unwrap();
+        await updateUser({ userId: userId, name, email, role }).unwrap();
       } else {
         await createUser({ name, email, password, role }).unwrap();
       }

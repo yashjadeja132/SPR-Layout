@@ -102,7 +102,7 @@ export default function Header({
           Smart Ticket Support System
         </Typography>
 
-        {/* Settings Icon with Menu */}
+        Settings Icon with Menu
         <IconButton
           color="inherit"
           aria-label="settings"

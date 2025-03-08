@@ -96,6 +96,7 @@ export default function Sidebar({ open }) {
   const secondaryList = [
     { name: "User-Table", icon: <TableChartIcon />, path: "/super/user-table" },
     { name: "Admin-Table", icon: <GridViewIcon />, path: "/super/admin-table" },
+    { name: "Staff-Member", icon: <PersonIcon />, path: "/super/staff-member" },
     { name: "Log-Table", icon: <HistoryIcon />, path: "/super/log-table" },
     { name: "Ticket-Table", icon: <TicketIcon />, path: "/super/ticket-table" },
   ];
