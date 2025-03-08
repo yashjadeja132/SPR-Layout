@@ -8,7 +8,12 @@ import ProtectedRoute from "./ProtectedRoute";
 import MainLayout from "../layouts/MainLayout";
 
 // Constants
-import { ADMIN_ROLE, USER_ROLE, SUPER_ADMIN_ROLE, STAFF_ROLE } from "../constant/constant";
+import {
+  ADMIN_ROLE,
+  USER_ROLE,
+  SUPER_ADMIN_ROLE,
+  STAFF_ROLE,
+} from "../constant/constant";
 
 // Common Pages
 import LandingPage from "../pages/common/LandingPage";
@@ -136,7 +141,7 @@ const Router = () => {
         },
         {
           path: "notification",
-          element: <Ticketgenerate />,
+          element: <Notifications />,
         },
       ],
     },
