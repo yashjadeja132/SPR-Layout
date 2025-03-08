@@ -17,6 +17,7 @@ import Error from "../pages/common/Error";
 
 // Auth Pages
 import SignIn from "../pages/auth/SignIn";
+import Singup from "../pages/auth/Singup";
 
 // Lazy-loaded Pages
 const UsersList = lazy(() => import("../pages/Admin/UsersList"));
@@ -65,6 +66,10 @@ const Router = () => {
     {
       path: "/sign-in",
       element: <SignIn />,
+    },
+    {
+      path: "/sign-up",
+      element: <Singup />,
     },
     {
       path: "/",
