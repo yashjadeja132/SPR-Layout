@@ -33,6 +33,8 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css"; // Make sure you have this import
 
 const AdminList = () => {
   const dispatch = useDispatch();
@@ -64,7 +66,7 @@ const AdminList = () => {
       setUserId(user.userId);
       setName(user.name);
       setEmail(user.email);
-      setRole(user.role);
+      setRole(user.role || "admin");
     } else {
       setIsEditing(false);
       setUserId(null);
@@ -76,19 +78,45 @@ const AdminList = () => {
     setOpenModal(true);
   };
 
-  // Add or Update User
   const handleSaveUser = async () => {
     setLoading(true);
+
+    // Validation: All fields must be filled
+    if (!name || !email || (!userId && !password)) {
+      toast.error("All fields are required!");
+      setLoading(false);
+      return;
+    }
+
+    // Email validation
+    const emailPattern = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,6}$/;
+    if (!emailPattern.test(email)) {
+      toast.error("Please enter a valid email address.");
+      setLoading(false);
+      return;
+    }
+
+    // Password validation (min 6 characters)
+    if (!userId && password.length < 6) {
+      toast.error("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isEditing) {
-        await updateUser({ userId: userId, name, email, role }).unwrap();
+        await updateUser({ userId, name, email, role }).unwrap();
+        toast.success("User updated successfully!");
       } else {
         await createUser({ name, email, password, role }).unwrap();
+        toast.success("User added successfully!");
       }
+
       setOpenModal(false);
       refetch();
     } catch (error) {
       console.error("Error saving user:", error);
+      toast.error("Something went wrong, please try again.");
     } finally {
       setLoading(false);
     }
@@ -106,8 +134,10 @@ const AdminList = () => {
       await deleteUser(userToDelete.userId).unwrap();
       setDeleteDialog(false);
       refetch();
+      toast.success("User deleted successfully!");
     } catch (error) {
       console.error("Error deleting user:", error);
+      toast.error("Something went wrong while deleting the user.");
     }
   };
 

@@ -25,8 +25,9 @@ const Dashboard = lazy(() => import("../pages/SuperAdmin/Dashboard"));
 const TicketTable = lazy(() => import("../pages/SuperAdmin/TicketTable"));
 const LogTable = lazy(() => import("../pages/SuperAdmin/LogTable"));
 const AdminTable = lazy(() => import("../pages/SuperAdmin/AdminTable"));
-const Staff = lazy(() => import("../pages/SuperAdmin/Staff"));
+const Ticketgenerate = lazy(() => import("../pages/User/Ticketgenerate"));
 import Profile from "../pages/Admin/Profile";
+import Staff from "../pages/SuperAdmin/Staff";
 
 // Loader Component
 const Loader = () => <div className="loader">Loading...</div>;
@@ -60,10 +61,6 @@ const Router = () => {
           element: <LogTable />,
         },
         {
-          path: "ticket-table",
-          element: <TicketTable />,
-        },
-        {
           path: "admin-table",
           element: <AdminTable />,
         },
@@ -74,6 +71,10 @@ const Router = () => {
         {
           path: "staff-member",
           element: <Staff />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
         },
       ],
     },
@@ -105,11 +106,23 @@ const Router = () => {
       children: [
         {
           index: true,
-          element: <UsersList />,
+          element: <Dashboard />,
+        },
+        {
+          path: "dashboard",
+          element: <Dashboard />,
         },
         {
           path: "profile",
           element: <Profile />,
+        },
+        {
+          path: "tickets",
+          element: <Ticketgenerate />,
+        },
+        {
+          path: "notification",
+          element: <Ticketgenerate />,
         },
       ],
     },

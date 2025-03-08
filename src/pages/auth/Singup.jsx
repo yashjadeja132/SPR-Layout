@@ -205,8 +205,6 @@ const Signup = () => {
           </CardContent>
         </Box>
       </Card>
-
-      <ToastContainer style={{ zIndex: 9999 }} />
     </Box>
   );
 };

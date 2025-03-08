@@ -44,7 +44,7 @@ export default function Header({
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const userrole = user.role;
-  console.log(user, "userrole");
+
   // Handle settings menu open
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -76,6 +76,8 @@ export default function Header({
     handleMenuClose();
   };
 
+  const handlenotificationClick = () => {};
+
   return (
     <AppBarStyled position="fixed" open={open}>
       <Toolbar>
@@ -89,7 +91,6 @@ export default function Header({
         >
           <MenuIcon />
         </IconButton>
-
         {/* Drawer Close Icon */}
         <IconButton
           color="inherit"
@@ -103,7 +104,6 @@ export default function Header({
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           Smart Ticket Support System
         </Typography>
-
         <IconButton
           color="inherit"
           aria-label="settings"
@@ -127,14 +127,9 @@ export default function Header({
             horizontal: "right",
           }}
         >
-          <MenuItem onClick={handleProfileClick}>
-            <PersonIcon sx={{ marginRight: 1 }} />
-            Profile
-          </MenuItem>
-          <MenuItem onClick={handleLogoutClick}>
-            <ExitToAppIcon sx={{ marginRight: 1 }} />
-            Logout
-          </MenuItem>
+          <MenuItem onClick={handleProfileClick}>Profile</MenuItem>
+          <MenuItem onClick={handleLogoutClick}>Logout</MenuItem>
+          <MenuItem onClick={handlenotificationClick}>Notifications</MenuItem>
         </Menu>
       </Toolbar>
     </AppBarStyled>

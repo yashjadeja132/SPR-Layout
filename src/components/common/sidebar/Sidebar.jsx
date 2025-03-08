@@ -11,6 +11,8 @@ import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { drawerWidth } from "../../../constant/constant";
 import HistoryIcon from "@mui/icons-material/History";
 import GridViewIcon from "@mui/icons-material/GridView";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
+import { useSelector } from "react-redux";
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -88,18 +90,60 @@ function SidebarList({ open, listItems }) {
   );
 }
 
-export default function Sidebar({ open }) {
-  const mainList = [
-    { name: "Dashboard", icon: <DashboardIcon />, path: "/super/dashboard" },
-  ];
+const routesData = {
+  "super-admin": {
+    mainList: [
+      { name: "Dashboard", icon: <DashboardIcon />, path: "/super/dashboard" },
+    ],
+    secondaryList: [
+      { name: "User", icon: <TableChartIcon />, path: "/super/user-table" },
+      { name: "Admin", icon: <GridViewIcon />, path: "/super/admin-table" },
+      {
+        name: "Staff-Member",
+        icon: <PersonIcon />,
+        path: "/super/staff-member",
+      },
+      {
+        name: "Ticket-Generate",
+        icon: <LocalActivityIcon />,
+        path: "/super/tickets",
+      },
+    ],
+  },
+  admin: {
+    mainList: [
+      { name: "Dashboard", icon: <DashboardIcon />, path: "/admin/dashboard" },
+    ],
+    secondaryList: [
+      { name: "User", icon: <TableChartIcon />, path: "/admin/user-table" },
+      {
+        name: "Staff-Member",
+        icon: <PersonIcon />,
+        path: "/admin/staff-member",
+      },
+    ],
+  },
+  user: {
+    mainList: [
+      { name: "Dashboard", icon: <DashboardIcon />, path: "/user/dashboard" },
+    ],
+    secondaryList: [
+      {
+        name: "Tickets",
+        icon: <LocalActivityIcon />,
+        path: "/user/tickets",
+      },
+    ],
+  },
+};
 
-  const secondaryList = [
-    { name: "User-Table", icon: <TableChartIcon />, path: "/super/user-table" },
-    { name: "Admin-Table", icon: <GridViewIcon />, path: "/super/admin-table" },
-    { name: "Staff-Member", icon: <PersonIcon />, path: "/super/staff-member" },
-    { name: "Log-Table", icon: <HistoryIcon />, path: "/super/log-table" },
-    { name: "Ticket-Table", icon: <TicketIcon />, path: "/super/ticket-table" },
-  ];
+export default function Sidebar({ open }) {
+  const { user } = useSelector((state) => state.auth);
+  const userrole = user.role;
+
+  const mainList = routesData[userrole].mainList;
+
+  const secondaryList = routesData[userrole].secondaryList;
 
   const sidebarLists = [mainList, secondaryList];
 
