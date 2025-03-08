@@ -42,7 +42,7 @@ export default function Header({
   const navigate = useNavigate();
   const { user } = useSelector((state) => state.auth);
   const userrole = user.role;
-  console.log(user, "userrole");
+
   // Handle settings menu open
   const handleMenuOpen = (event) => {
     setAnchorEl(event.currentTarget);
@@ -74,9 +74,7 @@ export default function Header({
     handleMenuClose();
   };
 
-  const handlenotificationClick = () => {
-      
-  };
+  const handlenotificationClick = () => {};
 
   return (
     <AppBarStyled position="fixed" open={open}>
@@ -91,7 +89,6 @@ export default function Header({
         >
           <MenuIcon />
         </IconButton>
-
         {/* Drawer Close Icon */}
         <IconButton
           color="inherit"
@@ -105,8 +102,6 @@ export default function Header({
         <Typography variant="h6" noWrap component="div" sx={{ flexGrow: 1 }}>
           Smart Ticket Support System
         </Typography>
-
-        Settings Icon with Menu
         <IconButton
           color="inherit"
           aria-label="settings"
