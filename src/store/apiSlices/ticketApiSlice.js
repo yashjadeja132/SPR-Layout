@@ -47,6 +47,7 @@ export const ticketApiSlice = createApi({
         { type: "Tickets", id: "LIST" },
       ],
     }),
+
     deleteTicket: builder.mutation({
       // To delete an existing ticket using data.ticketId
       query: (data) => ({

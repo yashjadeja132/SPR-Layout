@@ -16,7 +16,6 @@ import {
   TableRow,
   TableCell,
   TableBody,
-  IconButton,
   TablePagination,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
@@ -39,6 +38,10 @@ function TicketGenerate() {
 
   const [formData, setFormData] = useState(initialFormState);
   const [openModal, setOpenModal] = useState(false);
+  // New state for ticket details modal.
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [openDetailModal, setOpenDetailModal] = useState(false);
+
   const [createTicket] = useCreateTicketMutation();
   const [deleteTicket] = useDeleteTicketMutation();
 
@@ -46,10 +49,10 @@ function TicketGenerate() {
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
-  // useGetAllTicketsQuery hook to fetch ticket data along with the refetch method.
+  // Fetch tickets.
   const { data, error, isLoading, refetch } = useGetAllTicketsQuery();
 
-  // Generic change handler for all form inputs.
+  // Handle form input changes.
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -58,13 +61,13 @@ function TicketGenerate() {
     }));
   };
 
-  // Reset form and open modal.
+  // Open the "Generate Ticket" modal.
   const handleOpenModal = () => {
     setFormData(initialFormState);
     setOpenModal(true);
   };
 
-  // Reset form and close modal.
+  // Close the "Generate Ticket" modal.
   const handleCloseModal = () => {
     setFormData(initialFormState);
     setOpenModal(false);
@@ -75,7 +78,6 @@ function TicketGenerate() {
     try {
       const response = await createTicket(formData).unwrap();
       console.log("Ticket generated:", response);
-      // Refresh tickets list after creation.
       refetch();
     } catch (err) {
       console.error("Error generating ticket:", err);
@@ -83,22 +85,16 @@ function TicketGenerate() {
     handleCloseModal();
   };
 
-  // Edit ticket stub function.
-  const handleEditClick = (ticket) => {
-    console.log("Edit ticket:", ticket);
-    // Implement edit functionality as needed.
+  // Open ticket detail modal when a row is clicked.
+  const handleOpenTicketDetail = (ticket) => {
+    setSelectedTicket(ticket);
+    setOpenDetailModal(true);
   };
 
-  // Delete ticket function using the deleteTicket mutation.
-  const handleDelete = async (ticketId) => {
-    try {
-      const response = await deleteTicket({ ticketId }).unwrap();
-      console.log("Ticket deleted:", response);
-      // Refresh tickets list after deletion.
-      refetch();
-    } catch (err) {
-      console.error("Error deleting ticket:", err);
-    }
+  // Close the ticket detail modal.
+  const handleCloseTicketDetail = () => {
+    setSelectedTicket(null);
+    setOpenDetailModal(false);
   };
 
   // Modal styling.
@@ -116,12 +112,12 @@ function TicketGenerate() {
     outline: "none",
   };
 
-  // Calculate the tickets to display for the current page.
+  // Calculate tickets to display for the current page.
   const paginatedTickets = data?.tickets
     ? data.tickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
     : [];
 
-  // Handle page change for pagination.
+  // Handle pagination page change.
   const handleChangePage = (event, newPage) => {
     setPage(newPage);
   };
@@ -132,7 +128,7 @@ function TicketGenerate() {
         Generate Tickets
       </Button>
 
-      {/* Modal for creating a new ticket */}
+      {/* Modal for generating a new ticket */}
       <Modal open={openModal} onClose={handleCloseModal}>
         <Box sx={modalStyle}>
           <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
@@ -244,6 +240,44 @@ function TicketGenerate() {
         </Box>
       </Modal>
 
+      {/* Modal for ticket details */}
+      <Modal open={openDetailModal} onClose={handleCloseTicketDetail}>
+        <Box sx={modalStyle}>
+          <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+            Ticket Details
+          </Typography>
+          {selectedTicket && (
+            <Box>
+              <Typography>
+                <strong>Priority:</strong> {selectedTicket.priority}
+              </Typography>
+              <Typography>
+                <strong>Status:</strong> {selectedTicket.status}
+              </Typography>
+              <Typography>
+                <strong>Description:</strong> {selectedTicket.description}
+              </Typography>
+              <Typography>
+                <strong>Category:</strong> {selectedTicket.category}
+              </Typography>
+              <Typography>
+                <strong>Resolution Notes:</strong>{" "}
+                {selectedTicket.resolutionNotes}
+              </Typography>
+            </Box>
+          )}
+          <Button
+            onClick={handleCloseTicketDetail}
+            variant="outlined"
+            color="secondary"
+            fullWidth
+            sx={{ mt: 2 }}
+          >
+            Close
+          </Button>
+        </Box>
+      </Modal>
+
       {/* Ticket Table */}
       <Box sx={{ mt: 4 }}>
         <Typography variant="h6" sx={{ mb: 2 }}>
@@ -265,38 +299,22 @@ function TicketGenerate() {
                     <TableCell>Description</TableCell>
                     <TableCell>Category</TableCell>
                     <TableCell>Resolution Notes</TableCell>
-                    <TableCell>Actions</TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
                   {paginatedTickets.length > 0 ? (
                     paginatedTickets.map((ticket, index) => (
-                      <TableRow key={ticket._id}>
+                      <TableRow
+                        key={ticket._id}
+                        onClick={() => handleOpenTicketDetail(ticket)}
+                        sx={{ cursor: "pointer" }}
+                      >
                         <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                         <TableCell>{ticket.priority}</TableCell>
                         <TableCell>{ticket.status}</TableCell>
                         <TableCell>{ticket.description}</TableCell>
                         <TableCell>{ticket.category}</TableCell>
                         <TableCell>{ticket.resolutionNotes}</TableCell>
-                        <TableCell>
-                          <Button
-                            variant="contained"
-                            color="primary"
-                            size="small"
-                            onClick={() => handleEditClick(ticket)}
-                            sx={{ mr: 1 }}
-                          >
-                            <EditIcon fontSize="small" />
-                            Edit
-                          </Button>
-                          <IconButton
-                            color="secondary"
-                            onClick={() => handleDelete(ticket._id)}
-                            size="small"
-                          >
-                            <DeleteIcon />
-                          </IconButton>
-                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
