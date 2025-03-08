@@ -113,16 +113,16 @@ const routesData = {
   admin: {
     mainList: [{ name: "Dashboard", icon: <DashboardIcon />, path: "/admin" }],
     secondaryList: [
-      { name: "User", icon: <TableChartIcon />, path: "/super/user-table" },
+      { name: "User", icon: <TableChartIcon />, path: "/admin/user-table" },
       {
         name: "Staff-Member",
         icon: <PersonIcon />,
-        path: "/super/staff-member",
+        path: "/admin/staff-member",
       },
       {
         name: "Ticket-Generate",
         icon: <LocalActivityIcon />,
-        path: "/super/tickets",
+        path: "/admin/tickets",
       },
     ],
   },

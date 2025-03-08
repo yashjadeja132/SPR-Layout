@@ -32,7 +32,6 @@ import {
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -79,7 +78,6 @@ const UsersList = () => {
   };
 
   // Add or Update User with Validation
-  // Add or Update User with Validation
   const handleSaveUser = async () => {
     setLoading(true);
 
@@ -122,24 +120,6 @@ const UsersList = () => {
     } finally {
       setLoading(false);
     }
-
-    try {
-      if (isEditing) {
-        await updateUser({ userId: userId, name, email, role }).unwrap();
-      } else {
-        await createUser({ name, email, password, role }).unwrap();
-      }
-      setOpenModal(false);
-      refetch();
-      toast.success(
-        isEditing ? "User updated successfully!" : "User added successfully!"
-      );
-    } catch (error) {
-      console.error("Error saving user:", error);
-      toast.error("An error occurred while saving the user!");
-    } finally {
-      setLoading(false);
-    }
   };
 
   // Open Delete Confirmation Dialog
@@ -160,6 +140,12 @@ const UsersList = () => {
       toast.error("An error occurred while deleting the user!");
     }
   };
+
+  // Pagination Logic
+  const rowsPerPage = 10;
+  const paginatedUsers = data?.users
+    ? data.users.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+    : [];
 
   if (isLoading) {
     return (
@@ -220,12 +206,12 @@ const UsersList = () => {
           </TableHead>
 
           <TableBody>
-            {data?.users?.map((user, index) => (
+            {paginatedUsers.map((user, index) => (
               <TableRow
                 key={user.id}
                 sx={{ backgroundColor: index % 2 ? "#f9f9f9" : "white" }}
               >
-                <TableCell>{(page - 1) * limit + index + 1}</TableCell>
+                <TableCell>{(page - 1) * rowsPerPage + index + 1}</TableCell>
                 <TableCell sx={{ fontWeight: "bold", color: "#333" }}>
                   {user.name}
                 </TableCell>
@@ -266,12 +252,13 @@ const UsersList = () => {
         </Table>
       </TableContainer>
 
+      {/* Table Pagination */}
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={data?.totalCount || 0}
-        rowsPerPage={limit}
-        page={page - 1}
+        count={data?.users?.length || 0}
+        rowsPerPage={rowsPerPage}
+        page={page - 1} // Adjusted because MUI page index starts from 0
         onPageChange={handleChangePage}
       />
 

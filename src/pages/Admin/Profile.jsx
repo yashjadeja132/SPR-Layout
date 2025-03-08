@@ -74,14 +74,11 @@ function Profile() {
       toast.success("Profile updated successfully!");
       setProfile((prev) => ({ ...prev, password: "" }));
     } catch (err) {
-          if (err?.status === 400) {
-              toast.error("Please enter the Correct mail.");
-            }
       // Handle email conflict error (e.g., email already exists)
       if (err?.data?.message?.includes("email exists")) {
         toast.error("Email already exists. Please use a different email.");
-      } else {
-        // toast.error("Failed to update profile.");
+      } else if (err?.status === 409) {
+        toast.error("Email is Already Exists.");
       }
       console.error("Failed to update profile:", err);
     }

@@ -13,7 +13,6 @@ import {
   TableCell,
   TableContainer,
   TableHead,
-  TablePagination,
   TableRow,
   Paper,
   Button,
@@ -28,11 +27,11 @@ import {
   DialogContent,
   DialogContentText,
   DialogTitle,
+  TablePagination, // Added for pagination
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
-import CloseIcon from "@mui/icons-material/Close";
 import { toast } from "react-toastify";
 
 const Staff = () => {
@@ -54,8 +53,15 @@ const Staff = () => {
   const [updateUser] = useUpdateUserMutation();
   const [deleteUser] = useDeleteUserMutation();
 
+  // Handle page change
   const handleChangePage = (event, newPage) => {
-    dispatch(setPage(newPage + 1));
+    dispatch(setPage(newPage + 1)); // Material UI uses zero-based indexing
+  };
+
+  // Handle rows per page change
+  const handleChangeRowsPerPage = (event) => {
+    dispatch(setPage(1)); // Reset to page 1 when changing rows per page
+    // You might want to implement the limit changing here, but for now it stays constant
   };
 
   // Open Modal for Add/Edit
@@ -108,30 +114,37 @@ const Staff = () => {
     setLoading(true);
     try {
       if (isEditing) {
-        // Ensure the userId is passed correctly when updating
         await updateUser({ userId, name, email, role }).unwrap();
-        toast.success("User updated successfully!"); // Show success toast for update
+        toast.success("User updated successfully!");
       } else {
+        const existingUser = data?.users.find((user) => user.email === email);
+        if (existingUser) {
+          toast.error("Email already exists!");
+          return;
+        }
+
         await createUser({ name, email, password, role }).unwrap();
-        toast.success("User added successfully!"); // Show success toast for adding
+        toast.success("User added successfully!");
       }
       setOpenModal(false);
       refetch();
     } catch (error) {
-      console.error("Error saving user:", error);
-      toast.error("Error saving user.");
+      console.log(error, "error");
+      if (error?.status === 409 || error?.message?.includes("already exists")) {
+        toast.error("Email is already in use.");
+      } else {
+        toast.error("Error saving user.");
+      }
     } finally {
       setLoading(false);
     }
   };
 
-  // Open Delete Confirmation Dialog
   const handleOpenDeleteDialog = (user) => {
     setUserToDelete(user);
     setDeleteDialog(true);
   };
 
-  // Delete User
   const handleDeleteUser = async () => {
     try {
       await deleteUser(userToDelete.userId).unwrap();
@@ -158,6 +171,11 @@ const Staff = () => {
       </Box>
     );
   }
+
+  const rowsPerPage = 10;
+  const paginatedUsers = data?.users
+    ? data.users.slice((page - 1) * rowsPerPage, page * rowsPerPage)
+    : [];
 
   return (
     <div style={{ padding: "20px" }}>
@@ -203,7 +221,7 @@ const Staff = () => {
           </TableHead>
 
           <TableBody>
-            {data?.users?.map((user, index) => (
+            {paginatedUsers.map((user, index) => (
               <TableRow
                 key={user.id}
                 sx={{ backgroundColor: index % 2 ? "#f9f9f9" : "white" }}
@@ -249,13 +267,15 @@ const Staff = () => {
         </Table>
       </TableContainer>
 
+      {/* Pagination */}
       <TablePagination
-        rowsPerPageOptions={[5, 10, 25]}
+        rowsPerPageOptions={[10, 25, 50]}
         component="div"
-        count={data?.totalCount || 0}
-        rowsPerPage={limit}
-        page={page - 1}
+        count={data?.users.length || 0}
+        rowsPerPage={rowsPerPage}
+        page={page - 1} // Material UI pagination is zero-based
         onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
       />
 
       {/* Add/Edit User Modal */}

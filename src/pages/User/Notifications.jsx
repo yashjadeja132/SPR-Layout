@@ -46,16 +46,49 @@ function Notifications() {
   };
 
   return (
-    <div>
-      <h2>Notifications</h2>
+    <div
+      style={{
+        fontFamily: "Arial, sans-serif",
+        margin: "20px",
+        padding: "20px",
+        backgroundColor: "#f9f9f9",
+        borderRadius: "10px",
+        boxShadow: "0 6px 12px rgba(0, 0, 0, 0.1)",
+        maxWidth: "500px",
+        margin: "50px auto",
+        textAlign: "center",
+      }}
+    >
+      <h2
+        style={{
+          color: "#333",
+          fontSize: "24px",
+          marginBottom: "20px",
+          fontWeight: "600",
+        }}
+      >
+        Notification Preferences
+      </h2>
 
-      {/* Toggle Switch UI with inline CSS */}
-      <label style={{ position: "relative", display: "inline-block", width: "60px", height: "34px" }}>
+      {/* Toggle Switch UI */}
+      <label
+        style={{
+          position: "relative",
+          display: "inline-block",
+          width: "80px",
+          height: "40px",
+          marginBottom: "20px",
+        }}
+      >
         <input
           type="checkbox"
           checked={isNotificationActive}
           onChange={handleToggle}
-          style={{ opacity: 0, width: 0, height: 0 }}
+          style={{
+            opacity: 0,
+            width: 0,
+            height: 0,
+          }}
         />
         <span
           style={{
@@ -67,34 +100,90 @@ function Notifications() {
             bottom: 0,
             backgroundColor: isNotificationActive ? "#4caf50" : "#ccc",
             transition: "0.4s",
-            borderRadius: "34px",
+            borderRadius: "50px",
+            boxShadow: "0 2px 4px rgba(0, 0, 0, 0.1)",
           }}
         >
           <span
             style={{
               position: "absolute",
               content: '""',
-              height: "26px",
-              width: "26px",
+              height: "32px",
+              width: "32px",
               borderRadius: "50%",
               left: "4px",
               bottom: "4px",
               backgroundColor: "white",
               transition: "0.4s",
-              transform: isNotificationActive ? "translateX(26px)" : "none",
+              boxShadow: "0 2px 4px rgba(0, 0, 0, 0.2)",
+              transform: isNotificationActive ? "translateX(40px)" : "none",
             }}
           ></span>
         </span>
       </label>
 
-      <div>
+      <div
+        style={{
+          fontSize: "18px",
+          color: "#666",
+          marginBottom: "30px",
+        }}
+      >
         {isNotificationActive
           ? "Notifications are ON"
           : "Notifications are OFF"}
       </div>
 
-      {/* Optionally show loading state */}
-      {isLoading && <p>Updating...</p>}
+      {/* Action buttons */}
+      <div style={{ marginBottom: "20px" }}>
+        <button
+          onClick={handleToggle}
+          style={{
+            backgroundColor: isNotificationActive ? "#4caf50" : "#ff6347",
+            border: "none",
+            padding: "10px 20px",
+            color: "white",
+            borderRadius: "5px",
+            cursor: "pointer",
+            fontSize: "16px",
+            transition: "0.3s",
+            boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)",
+          }}
+        >
+          {isNotificationActive
+            ? "Turn Off Notifications"
+            : "Turn On Notifications"}
+        </button>
+      </div>
+
+      {/* Loading, Success, and Error Feedback */}
+      {isLoading && (
+        <p style={{ fontSize: "14px", color: "#777" }}>Updating...</p>
+      )}
+
+      {isSuccess && (
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#4caf50",
+            fontWeight: "bold",
+          }}
+        >
+          Notifications updated successfully!
+        </p>
+      )}
+
+      {isError && (
+        <p
+          style={{
+            fontSize: "14px",
+            color: "#e74c3c",
+            fontWeight: "bold",
+          }}
+        >
+          Error updating notifications!
+        </p>
+      )}
 
       {/* Toast Notification container */}
       <ToastContainer />

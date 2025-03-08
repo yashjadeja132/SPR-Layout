@@ -27,6 +27,7 @@ import {
   useDeleteTicketMutation,
 } from "../../store/apiSlices/ticketApiSlice";
 import { useSelector } from "react-redux";
+import { Grid } from "@mui/material";
 
 function TicketGenerate() {
   // Initial form state for creating a new ticket.
@@ -332,9 +333,21 @@ function TicketGenerate() {
 
       {/* Ticket Table */}
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
-          Ticket List
-        </Typography>
+        <Grid
+          container
+          justifyContent="space-between"
+          alignItems="center"
+          sx={{ mb: 2 }}
+        >
+          <Grid item>
+            <Typography variant="h6">Ticket List</Typography>
+          </Grid>
+          <Grid item>
+            <Button variant="contained" color="primary">
+              Download PDF
+            </Button>
+          </Grid>
+        </Grid>
         {isLoading ? (
           <Typography>Loading tickets...</Typography>
         ) : error ? (
