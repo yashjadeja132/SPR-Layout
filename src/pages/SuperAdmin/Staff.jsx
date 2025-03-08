@@ -33,6 +33,7 @@ import AddIcon from "@mui/icons-material/Add";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
 import CloseIcon from "@mui/icons-material/Close";
+import { toast } from "react-toastify";
 
 const Staff = () => {
   const dispatch = useDispatch();
@@ -76,19 +77,49 @@ const Staff = () => {
     setOpenModal(true);
   };
 
-  // Add or Update User
+  // Validate fields
+  const validateFields = () => {
+    if (!name) {
+      toast.error("Name is required!");
+      return false;
+    }
+    if (!email) {
+      toast.error("Email is required!");
+      return false;
+    }
+    if (!/^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$/.test(email)) {
+      toast.error("Please enter a valid email address!");
+      return false;
+    }
+    if (!password && !isEditing) {
+      toast.error("Password is required!");
+      return false;
+    }
+    if (password && password.length < 6) {
+      toast.error("Password should be at least 6 characters long!");
+      return false;
+    }
+    return true;
+  };
+
   const handleSaveUser = async () => {
+    if (!validateFields()) return; // Validate before saving
+
     setLoading(true);
     try {
       if (isEditing) {
-        await updateUser({ userId: userId, name, email, role }).unwrap();
+        // Ensure the userId is passed correctly when updating
+        await updateUser({ userId, name, email, role }).unwrap();
+        toast.success("User updated successfully!"); // Show success toast for update
       } else {
         await createUser({ name, email, password, role }).unwrap();
+        toast.success("User added successfully!"); // Show success toast for adding
       }
       setOpenModal(false);
       refetch();
     } catch (error) {
       console.error("Error saving user:", error);
+      toast.error("Error saving user.");
     } finally {
       setLoading(false);
     }
@@ -106,8 +137,10 @@ const Staff = () => {
       await deleteUser(userToDelete.userId).unwrap();
       setDeleteDialog(false);
       refetch();
+      toast.success("User deleted successfully!");
     } catch (error) {
       console.error("Error deleting user:", error);
+      toast.error("Error deleting user.");
     }
   };
 
@@ -241,7 +274,7 @@ const Staff = () => {
           }}
         >
           <Typography variant="h6">
-            {isEditing ? "Edit User" : "Add User"}
+            {isEditing ? "Edit Staff Member" : "Add Staff Member"}
           </Typography>
           <TextField
             label="Name"
