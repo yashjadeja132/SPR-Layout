@@ -10,6 +10,7 @@ import { Link, useLocation } from "react-router-dom";
 import { List, ListItem, ListItemIcon, ListItemText } from "@mui/material";
 import { drawerWidth } from "../../../constant/constant";
 import HistoryIcon from "@mui/icons-material/History";
+import LocalActivityIcon from "@mui/icons-material/LocalActivity";
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -96,6 +97,11 @@ export default function Sidebar({ open }) {
     { name: "User-Table", icon: <TableChartIcon />, path: "/super/user-table" },
     { name: "Log-Table", icon: <HistoryIcon />, path: "/super/log-table" },
     { name: "Ticket-Table", icon: <TicketIcon />, path: "/super/ticket-table" },
+    {
+      name: "Ticket-Generate",
+      icon: <LocalActivityIcon />,
+      path: "/user/ticket-generate",
+    },
   ];
 
   const sidebarLists = [mainList, secondaryList];

@@ -24,6 +24,7 @@ const UsersList = lazy(() => import("../pages/Admin/UsersList"));
 const Dashboard = lazy(() => import("../pages/SuperAdmin/Dashboard"));
 const TicketTable = lazy(() => import("../pages/SuperAdmin/TicketTable"));
 const LogTable = lazy(() => import("../pages/SuperAdmin/LogTable"));
+const Ticketgenerate = lazy(() => import("../pages/User/Ticketgenerate"));
 import Profile from "../pages/Admin/Profile";
 
 // Loader Component
@@ -96,6 +97,10 @@ const Router = () => {
         {
           path: "profile",
           element: <Profile />,
+        },
+        {
+          path: "ticket-generate",
+          element: <Ticketgenerate />,
         },
       ],
     },
