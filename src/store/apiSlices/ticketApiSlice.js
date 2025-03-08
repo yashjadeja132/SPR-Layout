@@ -35,12 +35,26 @@ export const ticketApiSlice = createApi({
       }),
       invalidatesTags: [{ type: "Tickets", id: "LIST" }],
     }),
+    assignTicket: builder.mutation({
+      // To create a new ticket
+      query: (data) => ({
+        url: `/assign`,
+        method: "POST",
+        body: data,
+      }),
+      invalidatesTags: [{ type: "Tickets", id: "LIST" }],
+    }),
     updateTicket: builder.mutation({
-      // To update an existing ticket using data.ticketId
       query: (data) => ({
         url: `/${data.ticketId}`,
         method: "PUT",
-        body: data,
+        body: {
+          priority: data.priority,
+          status: data.status,
+          description: data.description,
+          category: data.category,
+          resolutionNotes: data.resolutionNotes,
+        },
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "Tickets", id: arg.ticketId },
@@ -49,11 +63,9 @@ export const ticketApiSlice = createApi({
     }),
 
     deleteTicket: builder.mutation({
-      // To delete an existing ticket using data.ticketId
-      query: (data) => ({
-        url: `/${data.ticketId}`,
+      query: (ticketId) => ({
+        url: `/${ticketId}`,
         method: "DELETE",
-        body: data,
       }),
       invalidatesTags: (result, error, arg) => [
         { type: "Tickets", id: arg.ticketId },
@@ -66,6 +78,7 @@ export const ticketApiSlice = createApi({
 export const {
   useGetTicketQuery,
   useGetAllTicketsQuery,
+  useAssignTicketMutation,
   useCreateTicketMutation,
   useDeleteTicketMutation,
   useUpdateTicketMutation,

@@ -93,7 +93,7 @@ function SidebarList({ open, listItems }) {
 const routesData = {
   "super-admin": {
     mainList: [
-      { name: "Dashboard", icon: <DashboardIcon />, path: "/super/dashboard" },
+      { name: "Dashboard", icon: <DashboardIcon />, path: "/super" },
     ],
     secondaryList: [
       { name: "User", icon: <TableChartIcon />, path: "/super/user-table" },

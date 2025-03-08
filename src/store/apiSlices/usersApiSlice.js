@@ -19,14 +19,14 @@ export const usersApiSlice = createApi({
     getUsers: builder.query({
       query: (userRole = "user") => `/all?userRole=${userRole}`,
     }),
-    // getDashboardData: builder.query({
-    //   query: (newUser) => ({
-    //     url: "/",
-    //     method: "GET",
-    //     body: newUser,
-    //   }),
-    //   invalidatesTags: [{ type: "Users", id: "LIST" }],
-    // }),
+    getDashboardData: builder.query({
+      query: (newUser) => ({
+        url: "/",
+        method: "GET",
+        body: newUser,
+      }),
+      invalidatesTags: [{ type: "Users", id: "LIST" }],
+    }),
     createUser: builder.mutation({
       query: (newUser) => ({
         url: "/",
@@ -55,7 +55,7 @@ export const usersApiSlice = createApi({
 
 export const {
   useGetUsersQuery,
-  // useGetDashboardDataQuery,
+  useGetDashboardDataQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
   useDeleteUserMutation,

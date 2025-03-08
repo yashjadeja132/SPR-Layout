@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Button,
   Modal,
@@ -17,19 +17,27 @@ import {
   TableCell,
   TableBody,
   TablePagination,
+  Divider,
+  CircularProgress,
+  FormControlLabel,
+  Checkbox,
   FormHelperText,
+  IconButton,
 } from "@mui/material";
-import EditIcon from "@mui/icons-material/Edit";
-import DeleteIcon from "@mui/icons-material/Delete";
+import { useSelector } from "react-redux";
 import {
   useCreateTicketMutation,
   useGetAllTicketsQuery,
   useDeleteTicketMutation,
+  useAssignTicketMutation,
+  useUpdateTicketMutation,
 } from "../../store/apiSlices/ticketApiSlice";
-import { useSelector } from "react-redux";
+import { useGetUsersQuery } from "../../store/apiSlices/usersApiSlice";
+import { toast } from "react-toastify";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
 function TicketGenerate() {
-  // Initial form state for creating a new ticket.
   const { user } = useSelector((state) => state.auth);
   const userrole = user.role;
 
@@ -42,22 +50,37 @@ function TicketGenerate() {
   };
 
   const [formData, setFormData] = useState(initialFormState);
-  const [openModal, setOpenModal] = useState(false);
-  const [selectedTicket, setSelectedTicket] = useState(null);
-  const [openDetailModal, setOpenDetailModal] = useState(false);
   const [formErrors, setFormErrors] = useState({});
+  const [openModal, setOpenModal] = useState(false);
+  const [openDetailModal, setOpenDetailModal] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState(null);
+  const [openAssignModal, setOpenAssignModal] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState("");
+  const [staffList, setStaffList] = useState([]);
 
-  const [createTicket] = useCreateTicketMutation();
-  const [deleteTicket] = useDeleteTicketMutation();
-
-  // Pagination state
   const [page, setPage] = useState(0);
   const rowsPerPage = 10;
 
-  // Fetch tickets.
   const { data, error, isLoading, refetch } = useGetAllTicketsQuery();
+  const { data: allUsersData } = useGetUsersQuery("staff");
 
-  // Handle form input changes.
+  const staffData = allUsersData?.users?.filter(
+    (user) => user.role === "staff"
+  );
+
+  const [createTicket] = useCreateTicketMutation();
+  const [updateTicket] = useUpdateTicketMutation();
+  const [deleteTicket] = useDeleteTicketMutation();
+  const [assignTicket] = useAssignTicketMutation();
+
+  const paginatedTickets = data?.tickets
+    ? data.tickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+    : [];
+
+  const handleChangePage = (event, newPage) => {
+    setPage(newPage);
+  };
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -66,25 +89,10 @@ function TicketGenerate() {
     }));
     setFormErrors((prev) => ({
       ...prev,
-      [name]: "", // Clear the error for the field as the user is typing
+      [name]: "",
     }));
   };
 
-  // Open the "Generate Ticket" modal.
-  const handleOpenModal = () => {
-    setFormData(initialFormState);
-    setFormErrors({});
-    setOpenModal(true);
-  };
-
-  // Close the "Generate Ticket" modal.
-  const handleCloseModal = () => {
-    setFormData(initialFormState);
-    setFormErrors({});
-    setOpenModal(false);
-  };
-
-  // Validate the form.
   const validateForm = () => {
     const errors = {};
 
@@ -102,14 +110,75 @@ function TicketGenerate() {
     }
 
     setFormErrors(errors);
-    return Object.keys(errors).length === 0; // Return true if there are no errors
+    return Object.keys(errors).length === 0;
   };
 
-  // Create a new ticket and refresh the ticket list.
+  const handleOpenModal = (ticket = null) => {
+    if (ticket) {
+      setFormData({
+        priority: ticket.priority,
+        status: ticket.status,
+        description: ticket.description,
+        category: ticket.category,
+        resolutionNotes: ticket.resolutionNotes,
+      });
+      setSelectedTicket(ticket);
+    } else {
+      setFormData(initialFormState);
+      setSelectedTicket(null); // reset on new ticket creation
+    }
+    setFormErrors({});
+    setOpenModal(true);
+  };
+
+  const handleUpdateTicket = async () => {
+    const isValid = validateForm();
+    if (!isValid) {
+      return;
+    }
+
+    if (!selectedTicket) {
+      toast.error("No ticket selected for update.");
+      return;
+    }
+
+    try {
+      const response = await updateTicket({
+        ...formData,
+        ticketId: selectedTicket.ticketId,
+      }).unwrap();
+      console.log("Ticket updated:", response);
+      refetch();
+      toast.success("Ticket updated successfully!");
+    } catch (err) {
+      console.error("Error updating ticket:", err);
+      toast.error("Error updating ticket.");
+    }
+    handleCloseModal();
+  };
+
+  const handleDeleteTicket = async (ticketId) => {
+    try {
+      console.log(ticketId, "ticketId");
+      await deleteTicket(ticketId).unwrap();
+      refetch();
+      toast.success("Ticket deleted successfully!");
+    } catch (err) {
+      console.error("Error deleting ticket:", err);
+      toast.error("Error deleting ticket.");
+    }
+  };
+
+  const handleCloseModal = () => {
+    setFormData(initialFormState);
+    setFormErrors({});
+    setOpenModal(false);
+  };
+
   const handleGenerateTicket = async () => {
     const isValid = validateForm();
     if (!isValid) {
-      return; // Do not submit the form if there are errors
+      return;
     }
 
     try {
@@ -122,19 +191,49 @@ function TicketGenerate() {
     handleCloseModal();
   };
 
-  // Open ticket detail modal when a row is clicked.
   const handleOpenTicketDetail = (ticket) => {
     setSelectedTicket(ticket);
     setOpenDetailModal(true);
   };
 
-  // Close the ticket detail modal.
-  const handleCloseTicketDetail = () => {
+  const handleCloseTicketDetail = (e) => {
     setSelectedTicket(null);
     setOpenDetailModal(false);
   };
 
-  // Modal styling.
+  const handleOpenAssignModal = (ticket) => {
+    setSelectedTicket(ticket);
+    setStaffList(staffData);
+    setOpenAssignModal(true);
+  };
+
+  const handleCloseAssignModal = () => {
+    setSelectedTicket(null);
+    setSelectedStaff("");
+    setOpenAssignModal(false);
+  };
+
+  const handleAssignStaff = async () => {
+    if (!selectedStaff) {
+      toast.error("Please select a staff member!"); // Show error toast
+      return;
+    }
+
+    try {
+      const response = await assignTicket({
+        ticketId: selectedTicket.ticketId,
+        userId: selectedStaff,
+      }).unwrap();
+      refetch();
+      toast.success("Staff assigned successfully!"); // Show success toast
+    } catch (err) {
+      console.error("Error assigning ticket:", err);
+      toast.error("Error assigning ticket!"); // Show error toast
+    }
+
+    handleCloseAssignModal();
+  };
+
   const modalStyle = {
     position: "absolute",
     top: "50%",
@@ -147,16 +246,6 @@ function TicketGenerate() {
     width: "90%",
     maxWidth: "500px",
     outline: "none",
-  };
-
-  // Calculate tickets to display for the current page.
-  const paginatedTickets = data?.tickets
-    ? data.tickets.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-    : [];
-
-  // Handle pagination page change.
-  const handleChangePage = (event, newPage) => {
-    setPage(newPage);
   };
 
   return (
@@ -269,13 +358,20 @@ function TicketGenerate() {
           />
 
           <Button
-            onClick={handleGenerateTicket}
+            onClick={selectedTicket ? handleUpdateTicket : handleGenerateTicket}
             variant="contained"
             color="primary"
             fullWidth
             sx={{ mb: 2 }}
+            disabled={isLoading}
           >
-            Generate Ticket
+            {isLoading ? (
+              <CircularProgress size={24} color="inherit" sx={{ mr: 2 }} />
+            ) : selectedTicket ? (
+              "Update Ticket"
+            ) : (
+              "Generate Ticket"
+            )}
           </Button>
 
           <Button
@@ -289,54 +385,114 @@ function TicketGenerate() {
         </Box>
       </Modal>
 
-      {/* Modal for ticket details */}
       <Modal open={openDetailModal} onClose={handleCloseTicketDetail}>
-        <Box sx={modalStyle}>
-          <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            backgroundColor: "#fff",
+            borderRadius: "8px",
+            padding: "20px",
+            boxShadow: "0 4px 15px rgba(0, 0, 0, 0.1)",
+            outline: "none",
+            width: "90%",
+            maxWidth: "500px",
+          }}
+        >
+          <Typography
+            variant="h5"
+            sx={{ color: "#333", fontWeight: "600", marginBottom: "20px" }}
+          >
             Ticket Details
           </Typography>
+
           {selectedTicket && (
-            <Box>
-              <Typography>
+            <Box sx={{ color: "#555" }}>
+              <Typography sx={{ marginBottom: "12px" }}>
                 <strong>Priority:</strong> {selectedTicket.priority}
               </Typography>
-              <Typography>
+              <Divider sx={{ marginBottom: "12px" }} />
+              <Typography sx={{ marginBottom: "12px" }}>
                 <strong>Status:</strong> {selectedTicket.status}
               </Typography>
-              <Typography>
+              <Divider sx={{ marginBottom: "12px" }} />
+              <Typography sx={{ marginBottom: "12px" }}>
                 <strong>Description:</strong> {selectedTicket.description}
               </Typography>
-              <Typography>
+              <Divider sx={{ marginBottom: "12px" }} />
+              <Typography sx={{ marginBottom: "12px" }}>
                 <strong>Category:</strong> {selectedTicket.category}
               </Typography>
-              <Typography>
+              <Divider sx={{ marginBottom: "12px" }} />
+              <Typography sx={{ marginBottom: "12px" }}>
                 <strong>Assignee:</strong>{" "}
                 {selectedTicket?.assigneeName || "Not assigned"}
               </Typography>
-              <Typography>
+              <Divider sx={{ marginBottom: "12px" }} />
+              <Typography sx={{ marginBottom: "18px" }}>
                 <strong>Notes:</strong> {selectedTicket.resolutionNotes}
               </Typography>
+              <Divider sx={{ marginBottom: "18px" }} />
             </Box>
           )}
+
           <Button
             onClick={handleCloseTicketDetail}
-            variant="outlined"
-            color="secondary"
+            variant="contained"
+            color="primary"
             fullWidth
-            sx={{ mt: 2 }}
           >
             Close
           </Button>
         </Box>
       </Modal>
 
-      {/* Ticket Table */}
+      <Modal open={openAssignModal} onClose={handleCloseAssignModal}>
+        <Box sx={{ ...modalStyle, maxWidth: "400px" }}>
+          <Typography variant="h6" sx={{ mb: 2, textAlign: "center" }}>
+            Assign Staff to Ticket
+          </Typography>
+
+          <FormControl fullWidth sx={{ mb: 2 }}>
+            <InputLabel>Select Staff</InputLabel>
+            <Select
+              value={selectedStaff}
+              onChange={(e) => setSelectedStaff(e.target.value)}
+              label="Select Staff"
+            >
+              {staffList.map((staff) => (
+                <MenuItem key={staff.userId} value={staff.userId}>
+                  {staff.name}
+                </MenuItem>
+              ))}
+            </Select>
+            <FormHelperText>
+              {formErrors.staff && formErrors.staff}
+            </FormHelperText>
+          </FormControl>
+
+          <Button
+            onClick={handleAssignStaff}
+            variant="contained"
+            color="primary"
+            fullWidth
+          >
+            Assign
+          </Button>
+        </Box>
+      </Modal>
+
       <Box sx={{ mt: 4 }}>
-        <Typography variant="h6" sx={{ mb: 2 }}>
+        <Typography
+          variant="h5"
+          sx={{ fontWeight: "bold", color: "#333", mb: 2 }}
+        >
           Ticket List
         </Typography>
         {isLoading ? (
-          <Typography>Loading tickets...</Typography>
+          <CircularProgress />
         ) : error ? (
           <Typography>Error loading tickets.</Typography>
         ) : (
@@ -344,13 +500,31 @@ function TicketGenerate() {
             <TableContainer component={Paper}>
               <Table aria-label="ticket table">
                 <TableHead>
-                  <TableRow>
-                    <TableCell>Sr</TableCell>
-                    <TableCell>Priority</TableCell>
-                    <TableCell>Status</TableCell>
-                    <TableCell>Description</TableCell>
-                    <TableCell>Category</TableCell>
-                    <TableCell>Notes</TableCell>
+                  <TableRow sx={{ backgroundColor: "#1976d2" }}>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Sr
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Priority
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Status
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Description
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Category
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Notes
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Action
+                    </TableCell>
+                    <TableCell sx={{ color: "white", fontWeight: "bold" }}>
+                      Assign
+                    </TableCell>
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -358,7 +532,10 @@ function TicketGenerate() {
                     paginatedTickets.map((ticket, index) => (
                       <TableRow
                         key={ticket._id}
-                        onClick={() => handleOpenTicketDetail(ticket)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleOpenTicketDetail(ticket);
+                        }}
                         sx={{ cursor: "pointer" }}
                       >
                         <TableCell>{page * rowsPerPage + index + 1}</TableCell>
@@ -367,6 +544,44 @@ function TicketGenerate() {
                         <TableCell>{ticket.description}</TableCell>
                         <TableCell>{ticket.category}</TableCell>
                         <TableCell>{ticket.resolutionNotes}</TableCell>
+                        <TableCell>
+                          {(userrole === "admin" ||
+                            userrole === "super-admin") && (
+                            <>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleOpenModal(ticket);
+                                }}
+                                color="primary"
+                              >
+                                <EditIcon />
+                              </IconButton>
+                              <IconButton
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteTicket(ticket.ticketId);
+                                }}
+                                color="error"
+                              >
+                                <DeleteIcon />
+                              </IconButton>
+                            </>
+                          )}
+                        </TableCell>
+
+                        <TableCell>
+                          <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleOpenAssignModal(ticket);
+                            }}
+                          >
+                            Assign
+                          </Button>
+                        </TableCell>
                       </TableRow>
                     ))
                   ) : (
@@ -379,6 +594,7 @@ function TicketGenerate() {
                 </TableBody>
               </Table>
             </TableContainer>
+
             <TablePagination
               component="div"
               count={data?.tickets ? data.tickets.length : 0}

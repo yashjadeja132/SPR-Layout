@@ -48,6 +48,7 @@ const Login = () => {
 
     try {
       const response = await login(credentials).unwrap();
+      toast.success("Login successful!");
       const userRole = response.user.role;
 
       dispatch(setLoginCredentials(response));
@@ -202,7 +203,16 @@ const Login = () => {
           </CardContent>
         </Box>
       </Card>
-      <ToastContainer position="top-right" autoClose={3000} />
+    
+      <ToastContainer
+        position="top-right"
+        autoClose={3000}
+        hideProgressBar
+        closeOnClick
+        pauseOnHover
+        draggable
+        theme="colored"
+      />
     </Box>
   );
 };

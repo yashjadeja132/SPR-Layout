@@ -271,7 +271,7 @@ const AdminList = () => {
           }}
         >
           <Typography variant="h6">
-            {isEditing ? "Edit User" : "Add User"}
+            {isEditing ? "Edit Admin" : "Add Admin"}
           </Typography>
           <TextField
             label="Name"

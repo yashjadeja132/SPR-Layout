@@ -1,5 +1,11 @@
 import React from "react";
-import { Box, CssBaseline, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  CssBaseline,
+  Grid,
+  Typography,
+  CircularProgress,
+} from "@mui/material";
 import { styled } from "@mui/system";
 import { Line } from "react-chartjs-2";
 import {
@@ -12,6 +18,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { useGetDashboardDataQuery } from "../../store/apiSlices/usersApiSlice"; // Import your API hook
 
 // Register Chart.js components
 ChartJS.register(
@@ -23,17 +30,6 @@ ChartJS.register(
   Tooltip,
   Legend
 );
-
-// Dummy data
-const dashboardData = {
-  totalUsers: 1250,
-  activeTickets: 80,
-  pendingApprovals: 12,
-  graphData: {
-    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
-    data: [400, 600, 750, 900, 1100, 1250, 1300],
-  },
-};
 
 const StyledBox = styled(Box)({
   padding: "20px",
@@ -51,13 +47,55 @@ const StyledBox = styled(Box)({
 });
 
 const Dashboard = () => {
-  // Graph Data
+  // Fetch the dashboard data
+  const { data, error, isLoading } = useGetDashboardDataQuery();
+
+  // Show loading spinner while data is being fetched
+  if (isLoading) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+        }}
+      >
+        <CircularProgress color="primary" />
+      </Box>
+    );
+  }
+
+  // Handle error state if the request fails
+  if (error) {
+    return (
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: "linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)",
+        }}
+      >
+        <Typography color="error" variant="h5">
+          Error fetching data
+        </Typography>
+      </Box>
+    );
+  }
+
+  // Extract the relevant data from the API response
+  const dashboardData = data.dashboardData;
+
+  // Graph Data (optional, since no graph data is provided in the response)
   const chartData = {
-    labels: dashboardData.graphData.labels,
+    labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul"],
     datasets: [
       {
-        label: "User Growth",
-        data: dashboardData.graphData.data,
+        label: "Tickets Over Time",
+        data: [100, 150, 200, 250, 300, 350, 400], // Static data, you can replace it with dynamic data if available
         fill: false,
         backgroundColor: "rgba(75,192,192,1)",
         borderColor: "rgba(75,192,192,1)",
@@ -84,27 +122,37 @@ const Dashboard = () => {
           <StyledBox>
             <Typography variant="h6">Total Users</Typography>
             <Typography variant="h3" fontWeight="bold">
-              {dashboardData.totalUsers}
+              {dashboardData.users} {/* Use real data */}
             </Typography>
           </StyledBox>
         </Grid>
 
-        {/* Active Tickets */}
+        {/* Total Tickets */}
         <Grid item xs={12} sm={6} md={4}>
           <StyledBox>
-            <Typography variant="h6">Active Tickets</Typography>
+            <Typography variant="h6">Total Tickets</Typography>
             <Typography variant="h3" fontWeight="bold">
-              {dashboardData.activeTickets}
+              {dashboardData.tickets} {/* Use real data */}
             </Typography>
           </StyledBox>
         </Grid>
 
-        {/* Pending Approvals */}
+        {/* Total Admins */}
         <Grid item xs={12} sm={6} md={4}>
           <StyledBox>
-            <Typography variant="h6">Pending Approvals</Typography>
+            <Typography variant="h6">Total Admins</Typography>
             <Typography variant="h3" fontWeight="bold">
-              {dashboardData.pendingApprovals}
+              {dashboardData.admins} {/* Use real data */}
+            </Typography>
+          </StyledBox>
+        </Grid>
+
+        {/* Total Staffs */}
+        <Grid item xs={12} sm={6} md={4}>
+          <StyledBox>
+            <Typography variant="h6">Total Staffs</Typography>
+            <Typography variant="h3" fontWeight="bold">
+              {dashboardData.staffs} {/* Use real data */}
             </Typography>
           </StyledBox>
         </Grid>
@@ -120,7 +168,7 @@ const Dashboard = () => {
             }}
           >
             <Typography variant="h5" align="center" gutterBottom>
-              User Growth Over Time
+              User Growth Over Time 
             </Typography>
             <Line data={chartData} />
           </Box>

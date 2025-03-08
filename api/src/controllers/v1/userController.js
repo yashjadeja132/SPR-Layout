@@ -1,6 +1,7 @@
 const { logUserEvent } = require("../../middleware/eventMiddleware");
 const User = require("../../models/User");
 const UserProfile = require("../../models/UserProfile");
+const Tickets = require("../../models/Tickets");
 const { updateUserProfileSchema } = require("../../validators/userValidation");
 const { registerSchema } = require("../../validators/authValidator");
 const bcrypt = require("bcrypt");
@@ -96,7 +97,7 @@ exports.updateUserProfile = async (req, res) => {
       });
     }
 
-    const { name, email, role, password } = value;
+    const { name, email, role, password, isNotificationActive } = value;
 
     // Find user and profile
     const userProfile = await UserProfile.findOne({ userId: user.userId });
@@ -146,6 +147,7 @@ exports.updateUserProfile = async (req, res) => {
         ...(email && { email }),
         ...(hashedPassword && { password: hashedPassword }),
         ...(role && { role }),
+        ...{ isNotificationActive },
       },
       { new: true, runValidators: true }
     );
@@ -459,6 +461,63 @@ exports.addUserByAdmin = async (req, res) => {
     });
   } catch (error) {
     console.error("Error adding user by admin:", error);
+    res.status(500).json({ success: false, message: "Internal Server Error" });
+  }
+};
+
+exports.getDashboardData = async (req, res) => {
+  try {
+    const user = req.user;
+    let dashboardData = {};
+
+    if (user.role === "super-admin") {
+      const [usersCount, ticketsCount, adminsCount, staffsCount] =
+        await Promise.all([
+          User.countDocuments({ role: "user", isDeleted: false }),
+          Tickets.countDocuments({ isDeleted: false }),
+          User.countDocuments({ role: "admin", isDeleted: false }),
+          User.countDocuments({ role: "staff", isDeleted: false }),
+        ]);
+
+      dashboardData = {
+        users: usersCount,
+        tickets: ticketsCount,
+        admins: adminsCount,
+        staffs: staffsCount,
+      };
+    } else if (user.role === "admin") {
+      const [usersCount, ticketsCount, staffsCount] = await Promise.all([
+        User.countDocuments({ role: "user", isDeleted: false }),
+        Tickets.countDocuments({ isDeleted: false }),
+        User.countDocuments({ role: "staff", isDeleted: false }),
+      ]);
+
+      dashboardData = {
+        users: usersCount,
+        tickets: ticketsCount,
+        staffs: staffsCount,
+      };
+    } else {
+      const [ticketsCount, staffsCount] = await Promise.all([
+        Tickets.countDocuments({
+          $or: [{ userId: user.userId }, { assignee: user.userId }],
+          isDeleted: false,
+        }),
+        User.countDocuments({ role: "staff", isDeleted: false }),
+      ]);
+
+      dashboardData = {
+        tickets: ticketsCount,
+        staffs: staffsCount,
+      };
+    }
+
+    res.status(200).json({
+      success: true,
+      dashboardData,
+    });
+  } catch (error) {
+    console.error("Error fetching dashboard data:", error);
     res.status(500).json({ success: false, message: "Internal Server Error" });
   }
 };
