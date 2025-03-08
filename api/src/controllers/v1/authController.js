@@ -6,6 +6,7 @@ const {
   loginSchema,
   verifyTokenSchema,
 } = require("../../validators/authValidator");
+const { logUserEvent } = require("../../middleware/eventMiddleware");
 
 // Generate JWT Token
 const generateToken = (user) => {
@@ -70,6 +71,13 @@ exports.register = async (req, res) => {
 
     // Generate token and sanitize response
     const token = generateToken(user);
+
+    logUserEvent(
+      user.userId,
+      "REGISTRATION",
+      `User ${user.email} registered in`
+    );
+
     res.status(201).json({
       user: {
         id: user.userId,
@@ -122,6 +130,12 @@ exports.login = async (req, res) => {
     const userProfile = await UserProfile.findOne({
       userId: user.userId,
     }).lean();
+
+    logUserEvent(
+      user.userId,
+      "LOGIN",
+      `User ${user.email} logged in.`
+    );
 
     // Generate token and return response
     const token = generateToken(user);
