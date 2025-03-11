@@ -17,70 +17,159 @@ const generateToken = (user) => {
   );
 };
 
-// Register User and Create Profile
+// // Register User and Create Profile
+// exports.register = async (req, res) => {
+//   try {
+//     // Validate request data
+//     const { error, value } = registerSchema.validate(req.body, {
+//       abortEarly: false,
+//     });
+
+//     if (error) {
+//       return res.status(400).json({
+//         error: error.details.map((err) => err.message),
+//       });
+//     }
+
+//     const {
+//       name,
+//       email,
+//       password,
+//       address,
+//       state,
+//       country,
+//       userDetails,
+//       role,
+//     } = value;
+
+//     // Check if user already exists
+//     const existingUser = await User.findOne({
+//       email,
+//       isActive: true,
+//       isDeleted: false,
+//     }).lean();
+
+//     if (existingUser) {
+//       return res.status(409).json({ error: "E-mail is already registered!" });
+//     }
+
+//     // Create user
+//     const user = new User({ email, password, role });
+//     await user.save(); // Triggers pre-save hook for password hashing
+
+//     // Create user profile
+//     const userProfile = await UserProfile.create({
+//       userId: user.userId,
+//       name,
+//       address,
+//       state,
+//       country,
+//       userDetails,
+//     });
+
+//     // Generate token and sanitize response
+//     const token = generateToken(user);
+//     res.status(201).json({
+//       user: {
+//         id: user.userId,
+//         name: userProfile.name,
+//         email: user.email,
+//         role: user.role,
+//       },
+//       token,
+//     });
+//   } catch (error) {
+//     console.error("Registration Error:", error);
+//     res.status(500).json({ error: "An internal server error occurred." });
+//   }
+// };
+
 exports.register = async (req, res) => {
   try {
     // Validate request data
     const { error, value } = registerSchema.validate(req.body, {
       abortEarly: false,
     });
-
     if (error) {
       return res.status(400).json({
+        success: false,
         error: error.details.map((err) => err.message),
       });
     }
 
-    const {
-      name,
-      email,
-      password,
-      address,
-      state,
-      country,
-      userDetails,
-      role,
-    } = value;
+    const { name, email, password, address, state, country, userDetails } =
+      value;
 
     // Check if user already exists
-    const existingUser = await User.findOne({
-      email,
-      isActive: true,
-      isDeleted: false,
-    }).lean();
-
-    if (existingUser) {
-      return res.status(409).json({ error: "E-mail is already registered!" });
+    const existingUser = await userService.getUserByEmail(email);
+    if (existingUser.success) {
+      return res
+        .status(409)
+        .json({ success: false, error: "E-mail is already registered!" });
     }
 
-    // Create user
-    const user = new User({ email, password, role });
-    await user.save(); // Triggers pre-save hook for password hashing
+    // Step 1: Create Company
+    const companyPayload = { companyName: `${name}'s Company` }; // Default company name
+    const companyResult = await companyService.createCompany(companyPayload);
+    if (!companyResult.success) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Failed to create company." });
+    }
+    const companyId = companyResult.company.companyId;
 
-    // Create user profile
-    const userProfile = await UserProfile.create({
+    // Step 2: Create User (Admin Role)
+    const userPayload = { email, password, role: "admin", companyId };
+    const userResult = await userService.createUser(userPayload);
+    if (!userResult.success) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Failed to create user." });
+    }
+    const user = userResult.user;
+
+    // Step 3: Create User Profile
+    const userProfilePayload = {
       userId: user.userId,
       name,
       address,
       state,
       country,
       userDetails,
-    });
+    };
+    const userProfileResult = await userProfileService.createUserProfile(
+      userProfilePayload
+    );
+    if (!userProfileResult.success) {
+      return res
+        .status(500)
+        .json({ success: false, error: "Failed to create user profile." });
+    }
 
-    // Generate token and sanitize response
+    // Step 4: Generate JWT Token
     const token = generateToken(user);
+
+    // Step 5: Send Response
     res.status(201).json({
+      success: true,
       user: {
         id: user.userId,
-        name: userProfile.name,
+        name: userProfileResult.userProfile.name,
         email: user.email,
         role: user.role,
+        companyId: companyId,
+      },
+      company: {
+        id: companyId,
+        name: companyResult.company.companyName,
       },
       token,
     });
   } catch (error) {
     console.error("Registration Error:", error);
-    res.status(500).json({ error: "An internal server error occurred." });
+    res
+      .status(500)
+      .json({ success: false, error: "An internal server error occurred." });
   }
 };
 

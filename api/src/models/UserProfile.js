@@ -6,6 +6,7 @@ const userProfileSchema = new mongoose.Schema(
     userProfileId: {
       type: String,
       default: () => uuidv4(),
+      immutable: true,
     },
 
     userId: {
@@ -61,9 +62,12 @@ userProfileSchema.index({ userId: 1 });
 
 userProfileSchema.pre("save", async function (next) {
   const User = mongoose.model("users");
-  const userExists = await User.findOne({ userId: this.userId });
+  const userExists = await User.findOne({
+    userId: this.userId,
+  });
+
   if (!userExists) {
-    return next(new Error("User ID does not exist."));
+    return next(new Error("User does not exist."));
   }
   next();
 });

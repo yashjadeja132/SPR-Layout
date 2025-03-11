@@ -7,6 +7,13 @@ const userSchema = new mongoose.Schema(
     userId: {
       type: String,
       default: () => uuidv4(),
+      immutable: true,
+    },
+
+    companyId: {
+      type: String,
+      required: [true, "Company is required."],
+      ref: "companies",
     },
 
     email: {
@@ -15,7 +22,6 @@ const userSchema = new mongoose.Schema(
         true,
         "E-mail is required! Please provide a valid e-mail address.",
       ],
-      lowercase: [true, "E-mail must be in lowercase format."],
       lowercase: true,
       trim: true,
       match: [
@@ -36,10 +42,7 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       default: "user",
-      enum: {
-        values: ["admin", "user"],
-        message: "Role must be one of 'user', or 'admin'.",
-      },
+      enum: ["admin", "user"],
     },
 
     isTrial: {
@@ -63,6 +66,17 @@ const userSchema = new mongoose.Schema(
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
   this.password = await bcrypt.hash(this.password, 10);
+
+  const Company = mongoose.model("companies");
+  const companyExists = await Company.findOne({
+    companyId: this.companyId,
+    isDeleted: false,
+  });
+
+  if (!companyExists) {
+    return next(new Error("Company does not exist."));
+  }
+
   next();
 });
 
@@ -81,6 +95,10 @@ userSchema.query.notDeleted = function () {
   return this.where({ isDeleted: false });
 };
 
-userSchema.index({ email: 1 });
+userSchema.pre(["find", "findOne", "findOneAndUpdate"], function () {
+  this.where({ isDeleted: false });
+});
+
+userSchema.index({ email: 1, role: 1 }, { unique: true });
 
 module.exports = mongoose.model("users", userSchema);
